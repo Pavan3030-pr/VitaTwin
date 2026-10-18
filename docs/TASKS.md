@@ -2,60 +2,67 @@
 
 Work through phases in order. Check boxes only when the quality gate in RULES.md is satisfied.
 
+Current gate: `npm run lint` ✅ · `npm run typecheck` ✅ · `npm test` ✅ (31 unit) ·
+`npm run test:e2e` ✅ (14 specs) · `npm run build` ✅ — all green as of 2026-10-18.
+
 ## Phase 0 — Foundation (Day 1)
 
-- [ ] Create repo, `git init`, push to GitHub
-- [ ] Set up Next.js 15 + TypeScript + Tailwind (light theme tokens)
-- [ ] Add `.env.example` and `.gitignore`
-- [ ] Create all docs files (PRD, ARCHITECTURE, DESIGN, RULES, TASKS, DECISIONS, MEMORY, TEST_PLAN, SECURITY)
-- [ ] Basic README with run instructions
-- [ ] Verify `node`, `npm`, `git` versions
+- [x] Create repo, `git init`, push to GitHub
+- [x] Set up Next.js 15 + TypeScript + Tailwind (light theme tokens)
+- [x] Add `.env.example` and `.gitignore`
+- [x] Create all docs files (PRD, ARCHITECTURE, DESIGN, RULES, TASKS, DECISIONS, MEMORY, TEST_PLAN, SECURITY)
+- [x] Basic README with run instructions
+- [x] Verify `node`, `npm`, `git` versions
 
 ## Phase 1 — Core Shell & Auth
 
-- [ ] Supabase project (or local Postgres) + Auth setup
-- [ ] Light-theme login / signup screens with synthetic-data notice
-- [ ] Protected routes / middleware
-- [ ] Basic layout shell (sidebar or top nav + content area)
+- [x] Supabase project + Auth setup (client/server clients, session refresh in middleware)
+- [x] Light-theme login / signup screens with synthetic-data notice
+- [x] Protected routes / middleware
+- [x] Basic layout shell (sidebar or top nav + content area)
+- [x] Postgres schema + RLS policies committed (`supabase/migrations/0001_init.sql`)
+- [ ] Apply the migration to a live Supabase project and record the project ref
+- [ ] Write `.env.local` from the connected project (blocked: both connected projects are paused/INACTIVE)
 
 ## Phase 2 — Synthetic Data Layer
 
-- [ ] Patient profile generator (demographics, risk factors relevant to India)
-- [ ] EHR snapshot generator (labs, diagnoses, meds, history)
-- [ ] Wearable stream generator (realistic HR, HRV, steps, sleep, SpO2 over days)
-- [ ] Clear “Synthetic Data” labelling in UI and code comments
+- [x] Patient profile generator (demographics, risk factors relevant to India)
+- [x] EHR snapshot generator (labs, diagnoses, meds, history)
+- [x] Wearable stream generator (realistic HR, HRV, steps, sleep, SpO2 over days)
+- [x] Clear “Synthetic Data” labelling in UI and code comments
 
 ## Phase 3 — Twin Engine (Core Differentiator)
 
-- [ ] Data fusion service (combine wearable window + EHR)
-- [ ] Risk models (explainable):
-  - CVD risk approximation
-  - Diabetes progression / metabolic risk
-  - Acute event / stress risk (short-term)
-- [ ] Twin state object with last-updated timestamp and contributing factors
-- [ ] Unit tests for risk calculations
+- [x] Data fusion service (combine wearable window + EHR)
+- [x] Risk models (explainable):
+  - [x] CVD risk approximation
+  - [x] Diabetes progression / metabolic risk
+  - [x] Acute event / stress risk (short-term)
+- [x] Twin state object with last-updated timestamp and contributing factors
+- [x] Unit tests for risk calculations
 
 ## Phase 4 — Dashboard & Visualization
 
-- [ ] Twin Dashboard (hero summary + risk cards)
-- [ ] Vitals / stream charts (light theme)
-- [ ] Alerts & Insights list with explanations
-- [ ] Personalized recommendations panel
-- [ ] Timeline / memory view of twin evolution
+- [x] Twin Dashboard (hero summary + risk cards)
+- [x] Vitals / stream charts (light theme)
+- [x] Alerts & Insights list with explanations
+- [x] Personalized recommendations panel
+- [x] Timeline / memory view of twin evolution
+- [x] Loading, error and not-found states for every route
 
 ## Phase 5 — Clinician-oriented View (lightweight)
 
-- [ ] Alternative framing of the same twin data for a clinician lens
-- [ ] Clear separation of patient vs clinician emphasis
+- [x] Alternative framing of the same twin data for a clinician lens
+- [x] Clear separation of patient vs clinician emphasis
 
 ## Phase 6 — Quality, Privacy & Polish
 
-- [ ] Playwright e2e test for main user journey
-- [ ] Security review against SECURITY.md
-- [ ] Responsive check (375 / 768 / 1440)
+- [x] Playwright e2e test for main user journey
+- [x] Security review against SECURITY.md
+- [x] Responsive check (375 / 768 / 1440)
+- [x] Final README + DEMO script ([DEMO_SCRIPT.md](DEMO_SCRIPT.md))
+- [x] Update all docs to match final state
 - [ ] Error tracking placeholder + basic monitoring notes
-- [ ] Final README + DEMO script
-- [ ] Update all docs to match final state
 
 ## Phase 7 — Submission Ready
 
@@ -66,4 +73,5 @@ Work through phases in order. Check boxes only when the quality gate in RULES.md
 
 ---
 
-**Current focus:** (update this line in MEMORY.md as well)
+**Current focus:** Supabase credentials + migration application, then deploy.
+(see MEMORY.md → Current task)

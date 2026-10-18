@@ -114,6 +114,7 @@ The `/docs` folder is the project’s brain and stays current:
 | [TEST_PLAN.md](docs/TEST_PLAN.md) | What “working” means |
 | [SECURITY.md](docs/SECURITY.md) | Privacy & security rules |
 | [DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) | 3-minute jury walkthrough |
+| [DEPLOYMENT.md](docs/DEPLOYMENT.md) | Deploy + post-deploy verification runbook |
 
 ## Hackathon context
 

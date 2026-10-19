@@ -11,14 +11,14 @@
 
 ### Data Layer & Multi-Patient Architecture
 - Multi-patient migration (`supabase/migrations/0002_multi_patient_and_clinician.sql`) adding patient selection, clinician observation notes, and RBAC policies.
-- Data providers abstraction (`src/services/data-providers/index.ts`) supporting both Supabase persistence and synthetic default fallback.
-- Deterministic synthetic patient records calibrated for South-Asian clinical profiles.
+- Cleaned migration directory structure (removed garbage `supabase/migrations/src/` folder).
+- Data providers abstraction (`src/services/data-providers/index.ts`) supporting both Supabase persistence and synthetic default fallback without non-existent module imports.
+- Deterministic synthetic patient records calibrated for South-Asian clinical profiles via `generateDemoBundle()`.
 
 ### Twin Engine & Risk Models
-- Pure TypeScript server-side twin engine (`src/services/twin-engine.ts`).
-- Calibrated 10-year CVD risk, Type 2 Diabetes progression, and Acute Stress models.
-- What-If counterfactual simulator and automated insight/recommendation generation.
+- Restored pure TypeScript server-side twin engine (`src/services/twin-engine.ts`).
+- Calibrated 10-year CVD risk, Type 2 Diabetes progression, and Acute Stress models returning explainable `RiskFactorContribution` arrays.
+- Automated insight, alert, and recommendation generation.
 
-### Health Verification & Deployment
-- JSON health endpoint at `src/app/api/health/route.ts` returning system status, timestamp, synthetic mode, Supabase status, and model version.
-- Vercel production deployment setup with Supabase integration.
+### Health Verification & Disclaimers
+- Prominent disclaimers: Synthetic data only, educational/research PoC, not a validated medical device.

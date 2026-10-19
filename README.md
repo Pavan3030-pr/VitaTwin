@@ -130,3 +130,55 @@ The `/docs` folder is the project’s brain and stays current:
 
 Built following the Vibe Coding Playbook: planning docs first, small testable
 loops, verification before trust, living documentation.
+
+---
+
+## Submission checklist (Digital Twin Challenge 2026)
+
+| Required item | Location |
+|---------------|----------|
+| Team details | [Team](#team) |
+| College / Incubator | [Team](#team) |
+| Project title | **VitaTwin** (top of README) |
+| Problem statement | [Problem statement](#problem-statement) |
+| Healthcare use case | [Healthcare use case](#healthcare-use-case) |
+| Technical stack | [Stack](#stack) |
+| AI/ML model details | [AI / risk models](#ai--risk-models) |
+| Demo video (YouTube unlisted) | *Add link after upload* |
+| Open-source license | [LICENSE](LICENSE) (MIT) |
+| Architecture | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) |
+| Presentation | *Optional — see docs/* |
+| Public access | This repository is public |
+
+## Team
+
+| Role | Name |
+|------|------|
+| Lead | Chandra Pavansai |
+| Team | **TechGaint** |
+
+- **Program:** B.Tech 4th Year, Computer Science & Engineering  
+- **College:** CMR Technical Campus  
+- **Challenge:** Digital Twin Challenge 2026 — Reimagining & Reforming Healthcare in India Summit 2026 · Happiest Health  
+
+## Problem statement
+
+India faces a growing cardiometabolic burden (hypertension, type 2 diabetes, early CVD) while care remains largely reactive. Wearable and EHR data exist but are rarely fused into one living, explainable patient model.
+
+**VitaTwin** is a living digital health twin that fuses wearable streams + EHR into explainable cardiometabolic risk (CVD 10-year, diabetes progression, acute stress), prioritised alerts, and patient/clinician recommendations — including a what-if simulator. All data in this PoC is **synthetic**.
+
+## Healthcare use case
+
+- **Patient:** Adults at risk of diabetes / hypertension / early CVD — clear risk signals and guidance.  
+- **Clinician:** Living, factor-level explainable twin view.  
+- **Demo profile:** 52-year-old Indian adult with hypertension, T2DM, hyperlipidaemia.
+
+## AI / risk models
+
+Transparent **rule-based + factor-contribution** models (not black-box deep learning):
+
+- 10-year CVD risk — weighted clinical/lifestyle factors  
+- Diabetes progression — HbA1c, activity, sleep, adherence proxies  
+- Acute cardiac stress — recent HR/HRV and sleep patterns  
+
+Computation is **server-side**; every score returns contributing factors. What-if scenarios re-run the same validated models. Not a medical device and not a diagnosis.

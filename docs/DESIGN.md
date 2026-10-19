@@ -18,7 +18,7 @@
 | `--accent`           | `#38BDF8` (sky-400)  | Secondary accents, charts |
 | `--text-primary`     | `#0F172A` (slate-900)| Headings, body |
 | `--text-secondary`   | `#475569` (slate-600)| Supporting text |
-| `--text-muted`       | `#94A3B8`            | Placeholders, timestamps |
+| `--text-muted`       | `#64748B`            | Placeholders, timestamps |
 | `--border`           | `#E2E8F0`            | Card borders, dividers |
 | `--success`          | `#10B981`            | Positive trends, low risk |
 | `--warning`          | `#F59E0B`            | Medium risk / caution |
@@ -29,7 +29,7 @@
 
 ## Typography
 
-- **Font stack:** Inter / system-ui / -apple-system / sans-serif
+- **Font stack:** Bricolage Grotesque (headings) + Figtree (body), system-ui fallback
 - Headings: medium–semibold weight, clear hierarchy
 - Body: 15–16 px, comfortable line-height
 - Numbers / metrics: tabular figures preferred for alignment

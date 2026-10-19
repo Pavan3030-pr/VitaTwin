@@ -62,7 +62,7 @@ Current gate: `npm run lint` ✅ · `npm run typecheck` ✅ · `npm test` ✅ (3
 - [x] Responsive check (375 / 768 / 1440)
 - [x] Final README + DEMO script ([DEMO_SCRIPT.md](DEMO_SCRIPT.md))
 - [x] Update all docs to match final state
-- [ ] Error tracking placeholder + basic monitoring notes
+- [x] Error tracking placeholder (`src/lib/monitoring.ts`, scrubbed)
 
 ## Phase 7 — Submission Ready
 
@@ -70,6 +70,16 @@ Current gate: `npm run lint` ✅ · `npm run typecheck` ✅ · `npm test` ✅ (3
 - [ ] Working deployment (Vercel preview or production)
 - [ ] Pitch / demo materials (optional but recommended)
 - [ ] Submission checklist completed for Happiest Health portal
+
+## Phase 8 — Jury upgrade (2026-10-19)
+
+- [x] Light-theme redesign: landing, login, shell, dashboard, all twin screens
+- [x] Twin figure (silhouette, dashed twin, data nodes, ECG) and risk rings
+- [x] What-if simulator with server-side validation, unit and e2e tests
+- [x] WCAG AA colour fixes; mobile tab bar with all six sections
+- [x] Auth rate limit, input validation, security headers
+- [x] Fixed lint error and timeline sleep-hours bug
+- [ ] Deploy to Vercel and run the live smoke test
 
 ---
 

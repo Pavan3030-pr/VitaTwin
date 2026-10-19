@@ -18,4 +18,4 @@ import type {
   TwinVitals,
   WearableSample,
   RiskFactorsInput,
-} from "@/types/twin";
+} from "../types/twin";

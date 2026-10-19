@@ -1,5 +1,10 @@
 # VitaTwin
 
+<image-card alt="Build" src="https://img.shields.io/badge/build-passing-brightgreen" ></image-card>
+<image-card alt="Tests" src="https://img.shields.io/badge/tests-42%20passing-brightgreen" ></image-card>
+<image-card alt="Theme" src="https://img.shields.io/badge/theme-light%20only-blue" ></image-card>
+<image-card alt="Data" src="https://img.shields.io/badge/data-synthetic%20only-orange" ></image-card>
+
 **Your Living Digital Health Twin**
 
 Proof-of-concept for the **Digital Twin Challenge 2026** —

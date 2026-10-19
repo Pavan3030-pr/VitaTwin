@@ -1,6 +1,23 @@
 import Link from "next/link";
 
-/** Shared logo lockup: twin circles + gentle ECG line (DESIGN.md). */
+/** Logo glyph: two soft overlapping circles (the twin) with a gentle ECG line. */
+export function LogoGlyph({ className = "h-9 w-9" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 64 64" fill="none" aria-hidden="true">
+      <circle cx="25" cy="32" r="17" fill="#0D9488" fillOpacity="0.2" />
+      <circle cx="39" cy="32" r="17" fill="#38BDF8" fillOpacity="0.22" />
+      <path
+        d="M4 33h12l4-9 7 22 7-30 5 17h21"
+        stroke="#0F766E"
+        strokeWidth="3.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+/** Shared logo lockup (DESIGN.md → Logo Usage). Light backgrounds only. */
 export function BrandMark({
   href = "/",
   compact = false,
@@ -11,27 +28,10 @@ export function BrandMark({
   return (
     <Link
       href={href}
-      className="inline-flex items-center gap-2 rounded-md text-lg font-semibold text-text-primary"
+      className="inline-flex items-center gap-2 rounded-md font-display text-xl font-semibold tracking-tight text-text-primary"
       aria-label="VitaTwin home"
     >
-      <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-white">
-        <svg
-          className="h-5 w-5"
-          viewBox="0 0 24 24"
-          fill="none"
-          aria-hidden="true"
-        >
-          <circle cx="9" cy="12" r="6" stroke="currentColor" strokeWidth="1.8" />
-          <circle cx="15" cy="12" r="6" stroke="currentColor" strokeWidth="1.8" />
-          <path
-            d="M3 12h3l1.5-3 2 6 2-4 1.5 2h5"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </span>
+      <LogoGlyph />
       {!compact && <span>VitaTwin</span>}
     </Link>
   );

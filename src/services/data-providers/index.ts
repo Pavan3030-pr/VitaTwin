@@ -22,17 +22,17 @@ export class SyntheticDataProvider implements WearableProvider, EHRProvider {
 
   async fetchVitals(userId: string): Promise<Partial<TwinVitals>> {
     const bundle = generateDemoBundle();
-    return bundle.twinState.currentVitals;
+    return bundle.vitals;
   }
 
   async fetchSamples(userId: string): Promise<WearableSample[]> {
     const bundle = generateDemoBundle();
-    return bundle.wearables;
+    return bundle.samples;
   }
 
   async fetchPatientProfile(patientId: string): Promise<Partial<PatientProfile>> {
     const bundle = generateDemoBundle();
-    return bundle.profile;
+    return bundle.patient;
   }
 
   async isConnected(id: string): Promise<boolean> {

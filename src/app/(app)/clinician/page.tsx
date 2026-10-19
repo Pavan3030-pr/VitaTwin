@@ -1,5 +1,5 @@
 import { Stethoscope } from "lucide-react";
-import { Card, SectionTitle } from "@/components/ui/card";
+import { Card, PageHeader, SectionTitle } from "@/components/ui/card";
 import { RiskBadge } from "@/components/ui/risk-badge";
 import { generateDemoBundle } from "@/lib/data";
 
@@ -23,21 +23,16 @@ export default function ClinicianPage() {
 
   return (
     <div className="space-y-7">
-      <header className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight text-text-primary">
-            <Stethoscope className="h-5 w-5 text-primary" aria-hidden="true" />
-            Clinician view
-          </h1>
-          <p className="mt-1 text-sm text-text-secondary">
-            Same twin, clinical framing. Prioritised measurements, model
-            provenance, and immediate actions.
-          </p>
-        </div>
-        <span className="hidden rounded-md border border-border bg-bg-subtle px-2.5 py-1 text-xs text-text-secondary sm:inline">
-          {patient.demographics.firstName} {patient.demographics.lastName} · {patient.age}y
-        </span>
-      </header>
+      <PageHeader
+        title="Clinician view"
+        description="Same twin, clinical framing. Prioritised measurements, model provenance, and immediate actions."
+        aside={
+          <span className="inline-flex items-center gap-2 rounded-full bg-bg-wash px-3 py-1.5 text-sm font-medium text-primary-deep">
+            <Stethoscope className="h-4 w-4" aria-hidden="true" />
+            {patient.demographics.firstName} {patient.demographics.lastName} · {patient.age}y
+          </span>
+        }
+      />
 
       <section>
         <SectionTitle hint="Today">Measurements</SectionTitle>
@@ -45,7 +40,7 @@ export default function ClinicianPage() {
           <dl className="grid grid-cols-2 divide-x divide-y divide-border sm:grid-cols-4">
             {measurements.map((item) => (
               <div key={item.label} className="px-4 py-3">
-                <dt className="text-[11px] uppercase tracking-wide text-text-muted">
+                <dt className="text-xs text-text-muted">
                   {item.label}
                 </dt>
                 <dd className="mt-0.5 text-sm font-semibold tabular-nums text-text-primary">
@@ -62,7 +57,7 @@ export default function ClinicianPage() {
         <Card className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[560px] text-left text-sm">
-              <thead className="bg-bg-subtle text-xs uppercase tracking-wide text-text-muted">
+              <thead className="bg-bg-subtle text-xs text-text-secondary">
                 <tr>
                   <th className="px-4 py-2 font-medium">Model</th>
                   <th className="px-4 py-2 font-medium">Score</th>
@@ -108,7 +103,7 @@ export default function ClinicianPage() {
               <Card key={alert.id}>
                 <p className="text-sm font-semibold text-text-primary">{alert.title}</p>
                 <p className="mt-1 text-xs text-text-secondary">{alert.recommendedAction}</p>
-                <p className="mt-2 text-[11px] uppercase tracking-wide text-text-muted">
+                <p className="mt-2 text-xs text-text-muted">
                   Severity: {alert.severity}
                 </p>
               </Card>
@@ -119,7 +114,7 @@ export default function ClinicianPage() {
         <section>
           <SectionTitle hint="EHR snapshot">Problem list & medication</SectionTitle>
           <Card>
-            <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">
+            <p className="text-xs font-semibold text-text-secondary">
               Diagnoses
             </p>
             <ul className="mt-1 space-y-1 text-sm text-text-primary">
@@ -131,7 +126,7 @@ export default function ClinicianPage() {
               ))}
             </ul>
 
-            <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-text-muted">
+            <p className="mt-4 text-xs font-semibold text-text-secondary">
               Medications
             </p>
             <ul className="mt-1 space-y-1 text-sm text-text-primary">

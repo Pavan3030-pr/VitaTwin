@@ -1,5 +1,5 @@
 import { Activity, Droplets, Footprints, HeartPulse, Moon, Wind } from "lucide-react";
-import { Card, CardHeader, SectionTitle } from "@/components/ui/card";
+import { Card, CardHeader, PageHeader, SectionTitle } from "@/components/ui/card";
 import { VitalsChart } from "@/components/charts/vitals-chart";
 import { generateDemoBundle } from "@/lib/data";
 
@@ -49,15 +49,10 @@ export default function VitalsPage() {
 
   return (
     <div className="space-y-7">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight text-text-primary">
-          Vitals & streams
-        </h1>
-        <p className="mt-1 text-sm text-text-secondary">
-          Continuous wearable signals fused into the twin. Daily means are
-          shown so trends stay readable.
-        </p>
-      </header>
+      <PageHeader
+        title="Vitals & streams"
+        description="Continuous wearable signals fused into the twin. Daily means are shown so trends stay readable."
+      />
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {tiles.map(({ label, value, icon: Icon, note }) => (
@@ -68,7 +63,7 @@ export default function VitalsPage() {
             <div>
               <p className="text-xs text-text-secondary">{label}</p>
               <p className="text-xl font-semibold tabular-nums text-text-primary">{value}</p>
-              <p className="text-[11px] text-text-muted">{note}</p>
+              <p className="text-xs text-text-muted">{note}</p>
             </div>
           </Card>
         ))}

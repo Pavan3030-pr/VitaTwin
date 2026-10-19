@@ -1,12 +1,12 @@
-import { Card, SectionTitle } from "@/components/ui/card";
+import { Card, PageHeader, SectionTitle } from "@/components/ui/card";
 import { generateDemoBundle } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
 const FLAG_STYLES: Record<string, string> = {
-  normal: "text-success",
-  high: "text-danger",
-  low: "text-warning",
+  normal: "text-success-ink",
+  high: "text-danger-ink",
+  low: "text-warning-ink",
 };
 
 export default function ProfilePage() {
@@ -37,15 +37,10 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-7">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight text-text-primary">
-          Profile & EHR snapshot
-        </h1>
-        <p className="mt-1 text-sm text-text-secondary">
-          Synthetic demographics and a read-only electronic health record
-          snapshot. Nothing here is real patient data.
-        </p>
-      </header>
+      <PageHeader
+        title="Profile & EHR snapshot"
+        description="Synthetic demographics and a read-only electronic health record snapshot. Nothing here is real patient data."
+      />
 
       <section>
         <SectionTitle hint="Synthetic">Demographics</SectionTitle>
@@ -53,7 +48,7 @@ export default function ProfilePage() {
           <dl className="grid grid-cols-2 divide-x divide-y divide-border sm:grid-cols-3 lg:grid-cols-5">
             {facts.map((fact) => (
               <div key={fact.label} className="px-4 py-3">
-                <dt className="text-[11px] uppercase tracking-wide text-text-muted">
+                <dt className="text-xs text-text-muted">
                   {fact.label}
                 </dt>
                 <dd className="mt-0.5 text-sm font-medium text-text-primary">
@@ -71,7 +66,7 @@ export default function ProfilePage() {
           <Card className="p-0">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[480px] text-left text-sm">
-                <thead className="bg-bg-subtle text-xs uppercase tracking-wide text-text-muted">
+                <thead className="bg-bg-subtle text-xs text-text-secondary">
                   <tr>
                     <th className="px-4 py-2 font-medium">Test</th>
                     <th className="px-4 py-2 font-medium">Result</th>
@@ -84,7 +79,7 @@ export default function ProfilePage() {
                     <tr key={lab.name}>
                       <td className="px-4 py-2.5 text-text-primary">{lab.name}</td>
                       <td className="px-4 py-2.5 font-medium tabular-nums text-text-primary">
-                        {typeof lab.value === "number" ? lab.value.toFixed(1) : lab.value}{" "}
+                        {typeof lab.value === "number" ? String(Number(lab.value.toFixed(2))) : lab.value}{" "}
                         <span className="text-xs font-normal text-text-muted">{lab.unit}</span>
                       </td>
                       <td className="px-4 py-2.5 text-xs tabular-nums text-text-secondary">
@@ -114,7 +109,7 @@ export default function ProfilePage() {
                   <span className="text-text-secondary">{flag.label}</span>
                   <span
                     className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
-                      flag.on ? "bg-danger-soft text-danger" : "bg-success-soft text-success"
+                      flag.on ? "bg-danger-soft text-danger-ink" : "bg-success-soft text-success-ink"
                     }`}
                   >
                     {flag.on ? "present" : "absent"}
@@ -124,7 +119,7 @@ export default function ProfilePage() {
             </ul>
 
             <div className="mt-4 border-t border-border pt-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">
+              <p className="text-xs font-semibold text-text-secondary">
                 Current diagnoses
               </p>
               <ul className="mt-1 space-y-1 text-sm text-text-primary">
@@ -133,7 +128,7 @@ export default function ProfilePage() {
                 ))}
               </ul>
 
-              <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-text-muted">
+              <p className="mt-3 text-xs font-semibold text-text-secondary">
                 Medications
               </p>
               <ul className="mt-1 space-y-1 text-sm text-text-primary">

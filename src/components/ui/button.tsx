@@ -3,29 +3,30 @@ import { clsx } from "clsx";
 
 /**
  * Button variants (DESIGN.md): primary, secondary (outline), ghost,
- * destructive. Light theme only — no dark mode, no `dark:` classes.
+ * destructive. Light theme only — no `dark:` classes.
+ * Primary uses teal-700 so white label text meets WCAG AA.
  */
 const buttonVariants = cva(
   [
-    "inline-flex items-center justify-center gap-2 font-medium transition-colors",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1",
+    "inline-flex items-center justify-center gap-2 font-semibold transition-colors",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-strong/40 focus-visible:ring-offset-2",
     "disabled:cursor-not-allowed disabled:opacity-50",
-    "active:scale-[.99] touch-manipulation select-none",
+    "active:translate-y-px touch-manipulation select-none",
   ],
   {
     variants: {
       variant: {
-        primary: "bg-primary text-white hover:bg-primary-hover",
+        primary: "bg-primary-strong text-white hover:bg-primary-hover",
         secondary:
-          "border border-border bg-bg-card text-text-primary hover:bg-bg-subtle hover:border-border-strong",
+          "border border-border-strong bg-bg-card text-text-primary hover:border-primary-strong hover:text-primary-strong",
         ghost: "bg-transparent text-text-primary hover:bg-bg-subtle",
-        destructive: "bg-danger text-white hover:bg-danger/90",
+        destructive: "bg-danger-ink text-white hover:bg-danger-ink/90",
       },
       size: {
-        sm: "h-8 rounded-md px-3 text-sm",
-        md: "h-10 rounded-md px-4 text-sm",
-        lg: "h-12 rounded-md px-6 text-base",
-        icon: "h-10 w-10 rounded-md",
+        sm: "h-9 rounded-full px-4 text-sm",
+        md: "h-11 rounded-full px-5 text-sm",
+        lg: "h-12 rounded-full px-7 text-base",
+        icon: "h-10 w-10 rounded-full",
       },
     },
     defaultVariants: {

@@ -62,6 +62,23 @@ test.describe("VitaTwin main journey", () => {
     expect(Number(steps![1].replace(/,/g, ""))).toBeGreaterThan(500);
   });
 
+  test("what-if panel re-runs the models on the server", async ({ page }) => {
+    await page.goto("/login");
+    await page.getByRole("button", { name: /Continue with demo twin/i }).click();
+    await page.waitForURL("**/dashboard");
+
+    await expect(page.getByText(/No change from today/i)).toBeVisible();
+    await page.getByRole("button", { name: "Glucose under control" }).click();
+    await expect(page.getByText(/lower the combined risk score/i)).toBeVisible();
+    await expect(page.getByText(/Down \d+ pts/).first()).toBeVisible();
+
+    await page.getByRole("button", { name: "A rough week of sleep" }).click();
+    await expect(page.getByText(/Up \d+ pts/).first()).toBeVisible();
+
+    await page.getByRole("button", { name: /Reset to today/i }).click();
+    await expect(page.getByText(/No change from today/i)).toBeVisible();
+  });
+
   test("alert explanation and risk drivers are visible on insights", async ({ page }) => {
     await page.goto("/login");
     await page.getByRole("button", { name: /Continue with demo twin/i }).click();
@@ -192,6 +209,17 @@ test.describe("Theme", () => {
       }),
     );
     expect(noDarkScheme).toBe(true);
+  });
+});
+
+test.describe("Mobile navigation", () => {
+  test("phone tab bar reaches the clinician view", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto("/login");
+    await page.getByRole("button", { name: /Continue with demo twin/i }).click();
+    await page.waitForURL("**/dashboard");
+    await page.getByRole("navigation", { name: /mobile/i }).getByRole("link", { name: /Clinic/ }).click();
+    await expect(page.getByRole("heading", { name: /Clinician view/i })).toBeVisible();
   });
 });
 

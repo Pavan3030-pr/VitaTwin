@@ -1,9 +1,10 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { DEMO_COOKIE, isSupabaseConfigured } from "./auth";
 import { createSupabaseServerClient } from "./supabase/server";
+import { checkRateLimit } from "./rate-limit";
 
 /** Only same-origin relative paths are accepted as post-login destinations. */
 function safeNext(value: FormDataEntryValue | null | undefined): string {
@@ -11,6 +12,14 @@ function safeNext(value: FormDataEntryValue | null | undefined): string {
     return "/dashboard";
   }
   return value;
+}
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** Best-effort client key for rate limiting (first forwarded address). */
+async function clientKey(): Promise<string> {
+  const h = await headers();
+  return h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "local";
 }
 
 function loginErrorUrl(message: string, next: string): string {
@@ -56,12 +65,26 @@ export async function submitEmailAuth(formData: FormData): Promise<void> {
     );
   }
 
+  const limit = checkRateLimit(`auth:${await clientKey()}`, 8, 10 * 60_000);
+  if (!limit.allowed) {
+    redirect(
+      loginErrorUrl(
+        `Too many attempts. Try again in ${Math.ceil(limit.retryAfterSeconds / 60)} minute(s).`,
+        next,
+      ),
+    );
+  }
+
   if (!email || !password) {
     redirect(loginErrorUrl("Enter both an email address and a password.", next));
   }
 
-  if (password.length < 8) {
-    redirect(loginErrorUrl("Passwords must be at least 8 characters.", next));
+  if (email.length > 254 || !EMAIL_PATTERN.test(email)) {
+    redirect(loginErrorUrl("Enter a valid email address.", next));
+  }
+
+  if (password.length < 8 || password.length > 128) {
+    redirect(loginErrorUrl("Passwords must be between 8 and 128 characters.", next));
   }
 
   const supabase = await createSupabaseServerClient();

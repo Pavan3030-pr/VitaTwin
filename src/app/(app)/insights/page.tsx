@@ -1,5 +1,5 @@
 import { Lightbulb, ShieldAlert, Sparkles } from "lucide-react";
-import { Card, SectionTitle } from "@/components/ui/card";
+import { Card, PageHeader, SectionTitle } from "@/components/ui/card";
 import { RiskBadge, SeverityBadge } from "@/components/ui/risk-badge";
 import { generateDemoBundle } from "@/lib/data";
 
@@ -16,15 +16,10 @@ export default function InsightsPage() {
 
   return (
     <div className="space-y-7">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight text-text-primary">
-          Insights & alerts
-        </h1>
-        <p className="mt-1 text-sm text-text-secondary">
-          Every prediction is paired with the factors that produced it, so a
-          clinician can audit the reasoning.
-        </p>
-      </header>
+      <PageHeader
+        title="Insights & alerts"
+        description="Every prediction is paired with the factors that produced it, so a clinician can audit the reasoning."
+      />
 
       <section>
         <SectionTitle hint="Auditable">Risk models</SectionTitle>
@@ -66,7 +61,7 @@ export default function InsightsPage() {
                         <tr key={factor.factor}>
                           <td className="py-1.5 pr-3 text-text-primary">
                             {factor.factor}
-                            <span className="mt-0.5 block text-[11px] text-text-muted">
+                            <span className="mt-0.5 block text-xs text-text-muted">
                               {factor.note}
                             </span>
                           </td>
@@ -98,7 +93,7 @@ export default function InsightsPage() {
           {twin.alerts.map((alert) => (
             <Card key={alert.id}>
               <div className="flex items-start gap-3">
-                <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-danger-soft text-danger">
+                <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-danger-soft text-danger-ink">
                   <ShieldAlert className="h-4 w-4" aria-hidden="true" />
                 </span>
                 <div className="min-w-0 flex-1">
@@ -141,7 +136,7 @@ export default function InsightsPage() {
                 </span>
               </div>
               <p className="mt-1 text-xs leading-relaxed text-text-secondary">{rec.body}</p>
-              <p className="mt-2 inline-flex items-center gap-1 text-[11px] uppercase tracking-wide text-text-muted">
+              <p className="mt-2 inline-flex items-center gap-1 text-xs text-text-muted">
                 <Lightbulb className="h-3.5 w-3.5" aria-hidden="true" />
                 {rec.category} · seek care {rec.whenToSeekCare}
               </p>

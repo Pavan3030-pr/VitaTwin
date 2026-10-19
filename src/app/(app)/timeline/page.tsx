@@ -1,4 +1,4 @@
-import { Card, SectionTitle } from "@/components/ui/card";
+import { Card, PageHeader, SectionTitle } from "@/components/ui/card";
 import { generateDemoBundle } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
@@ -34,9 +34,8 @@ function buildSnapshots(samples: ReturnType<typeof generateDemoBundle>["samples"
     .map(([day, group]) => {
       const heartRate = mean(group.map((s) => s.heartRateBpm), 72);
       const hrv = mean(group.map((s) => s.hrvMs), 38);
-      const sleepHours = Number(
-        (group.filter((s) => s.sleepStage !== "awake").length / 4).toFixed(1),
-      );
+      // One sample per hour, so non-awake samples equal hours slept.
+      const sleepHours = group.filter((s) => s.sleepStage !== "awake").length;
       const steps = group.reduce((sum, s) => sum + s.steps, 0);
 
       const note =
@@ -68,15 +67,10 @@ export default function TimelinePage() {
 
   return (
     <div className="space-y-7">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight text-text-primary">
-          Twin timeline
-        </h1>
-        <p className="mt-1 text-sm text-text-secondary">
-          The twin is not a snapshot — it remembers. Each day below is a
-          reconstructed state from the wearable window.
-        </p>
-      </header>
+      <PageHeader
+        title="Twin timeline"
+        description="The twin is not a snapshot — it remembers. Each day below is a reconstructed state from the wearable window."
+      />
 
       <SectionTitle hint={`${snapshots.length} days`}>Evolution</SectionTitle>
 
@@ -99,7 +93,7 @@ export default function TimelinePage() {
                     </span>
                   )}
                 </p>
-                <p className="text-[11px] text-text-muted">{snapshot.day}</p>
+                <p className="text-xs text-text-muted">{snapshot.day}</p>
               </div>
 
               <div className="mt-2 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
@@ -110,7 +104,7 @@ export default function TimelinePage() {
                   { key: "Steps", value: snapshot.steps.toLocaleString() },
                 ].map((item) => (
                   <div key={item.key} className="rounded-md bg-bg-subtle px-2.5 py-1.5">
-                    <p className="text-[11px] text-text-muted">{item.key}</p>
+                    <p className="text-xs text-text-muted">{item.key}</p>
                     <p className="font-medium tabular-nums text-text-primary">{item.value}</p>
                   </div>
                 ))}

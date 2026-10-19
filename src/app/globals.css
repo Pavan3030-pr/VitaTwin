@@ -5,18 +5,22 @@
 /*
  * VitaTwin — Light Theme Only
  * Design tokens from docs/DESIGN.md.
- * Never introduce dark mode, `dark:` variants, or prefers-color-scheme.
+ * Never introduce dark mode, `dark:` variants, or prefers-color-scheme: dark.
  */
 
 :root {
+  color-scheme: light;
+
   /* Backgrounds */
   --color-bg-page: #fafbfc;
   --color-bg-card: #ffffff;
   --color-bg-subtle: #f1f5f9;
+  --color-bg-wash: #eaf6f4;
 
   /* Brand / primary */
   --color-primary: #0d9488;
-  --color-primary-hover: #0f766e;
+  --color-primary-strong: #0f766e;
+  --color-primary-hover: #115e59;
   --color-primary-soft: #e6f7f5;
 
   /* Accents */
@@ -26,21 +30,20 @@
   /* Text */
   --color-text-primary: #0f172a;
   --color-text-secondary: #475569;
-  --color-text-muted: #94a3b8;
+  --color-text-muted: #64748b;
 
   /* Borders */
   --color-border: #e2e8f0;
   --color-border-strong: #cbd5e1;
 
-  /* Semantic status */
+  /* Semantic status (fills) and AA-safe ink for text on soft fills */
   --color-success: #10b981;
-  --color-success-soft: #ecfdf5;
+  --color-success-ink: #047857;
   --color-warning: #f59e0b;
-  --color-warning-soft: #fef3c7;
+  --color-warning-ink: #92400e;
   --color-danger: #ef4444;
-  --color-danger-soft: #fee2e2;
+  --color-danger-ink: #b91c1c;
   --color-info: #3b82f6;
-  --color-info-soft: #eff6ff;
 }
 
 @layer base {
@@ -49,33 +52,64 @@
     height: 100%;
   }
 
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+  }
+
   body {
     background-color: var(--color-bg-page);
     color: var(--color-text-primary);
-    font-family:
-      Inter,
-      system-ui,
-      -apple-system,
-      BlinkMacSystemFont,
-      "Segoe UI",
-      Roboto,
-      "Helvetica Neue",
-      Arial,
-      sans-serif;
+    font-family: var(--font-body), Figtree, system-ui, -apple-system, "Segoe UI",
+      Roboto, sans-serif;
     font-size: 15px;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
 
-  /* Focus rings so accessibility is never color-only. */
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display), "Bricolage Grotesque", system-ui, sans-serif;
+    letter-spacing: -0.015em;
+  }
+
+  /* Focus rings so accessibility is never colour-only. */
   :focus-visible {
-    outline: 2px solid var(--color-primary);
+    outline: 2px solid var(--color-primary-strong);
     outline-offset: 2px;
   }
 
   ::selection {
     background-color: var(--color-primary-soft);
     color: var(--color-text-primary);
+  }
+}
+
+@layer components {
+  /* The single orchestrated motion: the ECG trace draws once on load. */
+  .ecg-trace {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+
+  .num {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
   }
 }

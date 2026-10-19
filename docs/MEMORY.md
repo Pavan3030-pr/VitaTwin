@@ -1,6 +1,6 @@
 # VitaTwin — Current State (Memory)
 
-**Last updated:** 2026-10-18
+**Last updated:** 2026-10-19
 
 ## What is done
 
@@ -46,6 +46,14 @@
 - 14 Playwright specs (journey, authorization, config honesty, theme,
   responsive).
 - Quality gate green: lint, typecheck, unit, e2e, production build.
+
+## 2026-10-19 jury upgrade
+
+Full light-theme redesign (Bricolage Grotesque + Figtree, teal on off-white), twin figure, risk rings and a
+what-if simulator (`src/services/scenario.ts`, `src/lib/scenario-actions.ts`, `src/components/twin/*`).
+Hardened auth and headers, added a scrubbed error-reporting seam, fixed lint, the timeline sleep bug and a
+misleading "stress detected" title on a low score. Gate: lint, typecheck, 42 unit tests, build green.
+Run `npm run test:e2e` locally (browser not available where this was built).
 
 ## Current task
 

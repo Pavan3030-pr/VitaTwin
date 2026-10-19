@@ -37,3 +37,9 @@
 - [ ] Auth rate limiting active
 - [ ] HTTPS enforced
 - [ ] Error messages do not leak internal details
+
+## Added 2026-10-19
+
+- Auth rate limit (8 attempts / 10 min / client, in-memory) and email/password length validation.
+- Security headers (CSP, HSTS, X-Frame-Options DENY, nosniff, Referrer-Policy, Permissions-Policy) in `next.config.ts`.
+- What-if action needs a session and clamps every input; error reports are scrubbed of emails, tokens and long numbers.

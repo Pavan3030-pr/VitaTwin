@@ -634,12 +634,12 @@ function buildInsights(
   if (stress) {
     insights.push({
       id: `insight-stress-${now}`,
-      type: "alert",
+      type: stress.category === "low" ? "observation" : "alert",
       severity: stress.category === "critical" ? "danger" : stress.category === "high" ? "warning" : "info",
-      title: "Acute cardiac stress detected",
+      title: stress.category === "low" ? "Short-term cardiac stress looks stable" : "Acute cardiac stress detected",
       body: stress.explanation,
       timestamp: now,
-      actionable: true,
+      actionable: stress.category !== "low",
       evidence: stress.factors.map((f) => f.factor),
       recommendedAction: stress.factors.find((f) => f.factor.includes("Sleep"))?.note ?? "Prioritize rest.",
     });

@@ -15,6 +15,8 @@ const PROTECTED_PREFIXES = [
   "/timeline",
   "/profile",
   "/clinician",
+  "/import",
+  "/validation",
 ];
 
 export async function middleware(request: NextRequest) {
@@ -79,5 +81,7 @@ export const config = {
     "/timeline/:path*",
     "/profile/:path*",
     "/clinician/:path*",
+    "/import/:path*",
+    "/validation/:path*",
   ],
 };

@@ -1,204 +1,248 @@
 /**
- * VitaTwin Data Layer.
+ * VitaTwin — server-side data layer.
  *
- * Provides synthetic data bundles and integration with twin-engine functions.
+ * Synthetic-only PoC. Generates a deterministic demo patient, fuses its
+ * wearable + EHR streams, and returns an explainable twin state.
+ *
+ * All twin computation happens here, on the server. The browser only ever
+ * receives the derived, explainable summary.
  */
 
-import {
-  generateDemographics,
-  generateEhrSnapshot,
-  generateWearableStream,
-  seedRandom,
-} from "./synthetic-data";
+import { generateDemographics, generateWearableStream, seedRandom } from "./synthetic-data";
+import { buildProfile, DEFAULT_PERSONA_ID, getPersona } from "./cohort";
+import { computeEarlyWarning, dailyStats } from "../services/early-warning";
 import {
   computeCvD10YearRisk,
-  computeDiabetesProgressionRisk,
-  computeAcuteStressRisk,
-  generateAlerts,/**
- * VitaTwin Data Layer.
- *
- * Provides synthetic data bundles and integration with twin-engine functions.
- */
-
-import {
-  generateDemographics,
-  generateEhrSnapshot,
-  generateWearableStream,
-  seedRandom,
-} from "./synthetic-data";
-import {
-  computeCvd10YearRisk,
   computeDiabetesProgressionRisk,
   computeAcuteStressRisk,
   generateAlerts,
   generateRecommendations,
   buildTwinState,
+  type RiskFactorsInput,
 } from "../services/twin-engine";
 import type {
+  DataProvenance,
+  EarlyWarning,
+  EnvironmentSnapshot,
   TwinState,
   PatientProfile,
   TwinVitals,
   WearableSample,
-  TelemetryEvent,
-  RiskAssessment,
-  TwinRecommendation,
-  DigitalTwinState,
-  VitalsHistoryPoint,
-} from "../types/twin";
+} from "@/types/twin";
+
+const WINDOW_DAYS = 7;
+/** Longer stream so each person has a real baseline to compare against. */
+const STREAM_DAYS = 10;
 
 export interface DemoBundle {
+  twin: TwinState;
   patient: PatientProfile;
   vitals: TwinVitals;
-  vitalsHistory: VitalsHistoryPoint[];
   samples: WearableSample[];
-  telemetry: TelemetryEvent[];
-  risks: RiskAssessment[];
-  recommendations: TwinRecommendation[];
-  twinState: DigitalTwinState;
-  twin: DigitalTwinState;
+  riskInput: RiskFactorsInput;
+  personaId: string;
+  environment: EnvironmentSnapshot | null;
+  earlyWarning: EarlyWarning;
+  provenance: DataProvenance[];
 }
 
-export function generateDemoBundle(seed = 42): DemoBundle {
-  const rng = seedRandom(seed);
-  const demoPatientProfile = generateEhrSnapshot(seed);
-  const demoWearableSamples = generateWearableStream(seed, 24);
-  const demoTwinVitals: TwinVitals = {
-    heartRate: demoWearableSamples[demoWearableSamples.length - 1]?.heartRateBpm ?? 72,
-    bloodPressureSystolic: demoPatientProfile.systolicBp,
-    bloodPressureDiastolic: demoPatientProfile.diastolicBp,
-    glucoseMgDl: demoWearableSamples[demoWearableSamples.length - 1]?.glucoseMgDl ?? 100,
-    spO2Percent: demoWearableSamples[demoWearableSamples.length - 1]?.spO2Percent ?? 98,
-    respiratoryRate: 16,
-    bodyTemperatureC: 36.6,
-    hrvMs: demoWearableSamples[demoWearableSamples.length - 1]?.hrvMs ?? 50,
-    timestamp: new Date().toISOString(),
+function labValue(patient: PatientProfile, name: string, fallback: number): number {
+  return patient.recentLabs.find((lab) => lab.name === name)?.value ?? fallback;
+}
+
+function toRiskInput(patient: PatientProfile, samples: WearableSample[]): RiskFactorsInput {
+  const days = dailyStats(samples);
+  const avgDailySteps = days.length > 0
+    ? days.reduce((sum, day) => sum + day.steps, 0) / days.length
+    : undefined;
+  return {
+    age: patient.age,
+    systolicBp: patient.systolicBp,
+    diastolicBp: patient.diastolicBp,
+    cholesterolTotal: labValue(patient, "Total cholesterol", 210),
+    hdl: labValue(patient, "HDL cholesterol", 42),
+    ldl: labValue(patient, "LDL cholesterol", 135),
+    triglycerides: labValue(patient, "Triglycerides", 165),
+    fastingGlucose: labValue(patient, "Fasting glucose", 128),
+    hba1c: labValue(patient, "HbA1c", 7.2),
+    hypertension: patient.riskFactors.hypertension,
+    diabetes: patient.riskFactors.diabetes,
+    hyperlipidemia: patient.riskFactors.hyperlipidemia,
+    familyHistory: patient.riskFactors.familyHistory,
+    bmi: patient.bmI,
+    smoking: patient.demographics.smoking,
+    creatinine: labValue(patient, "Creatinine", 0.95),
+    egfr: labValue(patient, "eGFR", 88),
+    hemoglobin: labValue(patient, "Hemoglobin", 13.4),
+    alcoholPerWeek: patient.demographics.alcoholPerWeek,
+    gender: patient.demographics.gender,
+    avgDailySteps,
+    onBpTreatment: patient.medications.some((m) => /amlodipine|telmisartan|losartan|ramipril|metoprolol|atenolol/i.test(m)),
+    southAsian: true,
   };
+}
 
-  const demoVitalsHistory: VitalsHistoryPoint[] = demoWearableSamples.map((s) => ({
-    timestamp: s.timestamp,
-    heartRate: s.heartRateBpm,
-    systolicBp: demoPatientProfile.systolicBp,
-    diastolicBp: demoPatientProfile.diastolicBp,
-    glucose: s.glucoseMgDl,
-    spO2: s.spO2Percent,
-    hrv: s.hrvMs,
-  }));
+export function buildProvenance(environment: EnvironmentSnapshot | null): DataProvenance[] {
+  return [
+    {
+      id: "wearable",
+      label: "Wearable stream",
+      kind: "synthetic",
+      detail: "Simulated hourly HR, HRV, SpO₂, sleep and steps (no real person).",
+    },
+    {
+      id: "ehr",
+      label: "EHR snapshot",
+      kind: "synthetic",
+      detail: "Synthetic labs, diagnoses and medications mirroring Indian primary-care patterns (ICMR-INDIAB 2023).",
+    },
+    {
+      id: "environment",
+      label: "Air quality & heat",
+      kind: environment ? "real-live" : "real-published",
+      detail: environment
+        ? `Live Open-Meteo reading for ${environment.city}: PM2.5 ${environment.pm25 ?? "—"} µg/m³, AQI ${environment.usAqi ?? "—"}.`
+        : "Open-Meteo live feed unreachable right now; running without the environment layer.",
+      asOf: environment?.observedAt,
+    },
+    {
+      id: "equations",
+      label: "Risk equations",
+      kind: "real-published",
+      detail: "Framingham 2008 (South-Asian ×1.4), UKPDS-35 glycaemic adjustment, Indian Diabetes Risk Score.",
+    },
+    {
+      id: "validation",
+      label: "Validation cohort",
+      kind: "real-dataset",
+      detail: "UCI Cleveland Heart Disease: 303 real angiography-referred patients (see Validation).",
+    },
+  ];
+}
 
-  const demoTelemetryEvents: TelemetryEvent[] = demoWearableSamples.map((s, i) => ({
-    id: `tel-${i}`,
-    timestamp: s.timestamp,
-    type: "wearable_sync",
-    payload: { heartRate: s.heartRateBpm, glucose: s.glucoseMgDl },
-  }));
+/**
+ * Builds the full bundle for a persona. Deterministic apart from the live
+ * environment layer, which the caller fetches (server-side) and passes in.
+ */
+export function generateDemoBundle(
+  personaId: string = DEFAULT_PERSONA_ID,
+  environment: EnvironmentSnapshot | null = null,
+): DemoBundle {
+  const persona = getPersona(personaId);
+  const patient = buildProfile(persona);
 
-  const cvd = computeCvd10YearRisk(demoPatientProfile, demoTwinVitals);
-  const diabetes = computeDiabetesProgressionRisk(demoPatientProfile, demoTwinVitals);
-  const stress = computeAcuteStressRisk(demoTwinVitals, demoWearableSamples);
+  seedRandom(persona.seed);
+  const samples = generateWearableStream(persona.id, STREAM_DAYS, persona.stream).samples;
+  const riskInput = toRiskInput(patient, samples);
+  const vitals = deriveVitals(patient, samples);
+  const earlyWarning = computeEarlyWarning(samples);
 
-  const demoRisks: RiskAssessment[] = [cvd, diabetes, stress];
-  const demoAlerts = generateAlerts(demoTwinVitals, demoRisks);
-  const demoRecommendations = generateRecommendations(demoPatientProfile, demoRisks);
+  const cvd = computeCvD10YearRisk(riskInput);
+  const diabetes = computeDiabetesProgressionRisk(riskInput);
+  const acuteStress = computeAcuteStressRisk(riskInput, {
+    heartRateBpm: vitals.heartRateBpm,
+    hrvMs: vitals.hrvMs,
+    sleepHours: vitals.sleepHours,
+    sleepQuality: vitals.sleepQuality,
+    stressIndex: 6,
+    environment,
+    strainIndex: earlyWarning.index,
+  });
+  const riskScores = [cvd, diabetes, acuteStress];
+  const extras = { environment, earlyWarning };
 
-  const demoTwinState = buildTwinState(
-    demoPatientProfile,
-    demoTwinVitals,
-    demoWearableSamples,
-    demoRisks,
-    demoAlerts,
-    demoRecommendations
+  const alerts = generateAlerts(riskScores, vitals, { vitals, mergedEhr: patient }, extras);
+  const recommendations = generateRecommendations(
+    { patient, samples, windowDays: WINDOW_DAYS, vitals, riskScores, ...extras },
+    alerts,
+  );
+
+  const twin = buildTwinState(
+    patient.demographics.id,
+    `twin-${patient.demographics.id}`,
+    { patient, samples, windowDays: WINDOW_DAYS, vitals },
+    riskScores,
+    alerts,
+    recommendations,
+    extras,
   );
 
   return {
-    patient: demoPatientProfile,
-    vitals: demoTwinVitals,
-    vitalsHistory: demoVitalsHistory,
-    samples: demoWearableSamples,
-    telemetry: demoTelemetryEvents,
-    risks: demoRisks,
-    recommendations: demoRecommendations,
-    twinState: demoTwinState,
-    twin: demoTwinState,
+    twin,
+    patient,
+    vitals,
+    samples,
+    riskInput,
+    personaId: persona.id,
+    environment,
+    earlyWarning,
+    provenance: buildProvenance(environment),
   };
 }
-
-export const demoPatientProfile = generateEhrSnapshot(42);
-export const demoWearableSamples = generateWearableStream(42, 24);
-export const demoTwinVitals: TwinVitals = {
-  heartRate: 72,
-  bloodPressureSystolic: 120,
-  bloodPressureDiastolic: 80,
-  glucoseMgDl: 100,
-  spO2Percent: 98,
-  respiratoryRate: 16,
-  bodyTemperatureC: 36.6,
-  hrvMs: 50,
-  timestamp: new Date().toISOString(),
-};
-export const demoVitalsHistory: VitalsHistoryPoint[] = [];
-export const demoTelemetryEvents: TelemetryEvent[] = [];
-export const demoRisks: RiskAssessment[] = [];
-export const demoRecommendations: TwinRecommendation[] = [];
-export const demoTwinState = buildTwinState(
-  demoPatientProfile,
-  demoTwinVitals,
-  demoWearableSamples,
-  demoRisks,
-  [],
-  []
-);
-
-  generateRecommendations,
-  buildTwinState,
-} from "../services/twin-engine";
-import type {
-  TwinState,
-  PatientProfile,
-  TwinVitals,
-  WearableSample,
-} from "../types/twin";
 
 /**
- * Generates a complete synthetic demo bundle containing patient profile,
- * wearable stream, and computed twin state.
+ * Derives a vitals summary from the wearable window, with the EHR systolic /
+ * diastolic BP as the authoritative reading.
  */
-export function generateDemoBundle(seed: number = 42) {
-  seedRandom(seed);
+function deriveVitals(patient: PatientProfile, samples: WearableSample[]): TwinVitals {
+  const recent = samples.filter((sample) => {
+    const age = Date.now() - Date.parse(sample.timestamp);
+    return age >= 0 && age <= WINDOW_DAYS * 86_400_000;
+  });
 
-  const profile: PatientProfile = {
-    id: "demo-patient-001",
-    name: "Alex Morgan",
-    age: 58,
-    gender: "female",
-    bmi: 28.4,
-    conditions: ["Hypertension", "Prediabetes"],
-    baselineVitals: {
-      heartRate: 72,
-      spO2: 98,
-      bloodPressureSystolic: 138,
-      bloodPressureDiastolic: 86,
-      glucose: 112,
-      hrv: 38,
-      respiratoryRate: 16,
-      bodyTemperature: 36.6,
-      lastUpdated: new Date().toISOString(),
-    },
-  };
+  const average = (values: number[], fallback: number) =>
+    values.length > 0
+      ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length)
+      : fallback;
 
-  const wearables: WearableSample[] = generateWearableStream(24, 60);
-  const twinState: TwinState = buildTwinState(profile, wearables);
+  // Report the most recent *complete* day. Using the partial current day meant
+  // that early in the UTC day the twin showed "0 steps" and a one-hour night.
+  const todayKey = new Date().toISOString().slice(0, 10);
+  const dayKeys = Array.from(
+    new Set(recent.map((sample) => sample.timestamp.slice(0, 10))),
+  ).sort();
+  const latestDay =
+    [...dayKeys].reverse().find((day) => day < todayKey) ?? dayKeys[dayKeys.length - 1];
+
+  const latestDaySamples = recent.filter(
+    (sample) => sample.timestamp.slice(0, 10) === latestDay,
+  );
+
+  // One sample per hour, so non-awake samples equal hours slept.
+  const sleepHours = latestDaySamples.filter((sample) => sample.sleepStage !== "awake").length;
+
+  const restingSamples =
+    latestDaySamples.length > 0
+      ? latestDaySamples.filter((sample) => sample.sleepStage !== "awake")
+      : recent.filter((sample) => sample.sleepStage !== "awake");
+
+  const restingHr = average(
+    (restingSamples.length > 0 ? restingSamples : recent).map((s) => s.heartRateBpm),
+    74,
+  );
+  const sleepQuality = Math.max(
+    0,
+    Math.min(100, Math.round(72 + (average(restingSamples.map((s) => s.hrvMs), 44) - 44))),
+  );
+
+  const stepsToday =
+    latestDaySamples.length > 0
+      ? latestDaySamples.reduce((sum, sample) => sum + sample.steps, 0)
+      : recent.reduce((sum, sample) => sum + sample.steps, 0);
 
   return {
-    profile,
-    wearables,
-    twinState,
+    heartRateBpm: restingHr,
+    hrvMs: average(restingSamples.map((s) => s.hrvMs), 44),
+    respiratoryRate: 16,
+    bloodPressureSystolic: patient.systolicBp,
+    bloodPressureDiastolic: patient.diastolicBp,
+    temperatureC: 36.6,
+    spO2: average(recent.map((s) => s.spO2), 97),
+    stepsToday,
+    sleepHours,
+    sleepQuality,
+    lastUpdated: new Date().toISOString(),
   };
 }
 
-export {
-  computeCvD10YearRisk,
-  computeDiabetesProgressionRisk,
-  computeAcuteStressRisk,
-  generateAlerts,
-  generateRecommendations,
-  buildTwinState,
-};
+export { generateDemographics };

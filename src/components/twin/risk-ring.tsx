@@ -15,10 +15,12 @@ export function RiskRing({
   value,
   category,
   size = 96,
+  unit = "of 100",
 }: {
   value: number;
   category: string;
   size?: number;
+  unit?: string;
 }) {
   const key = toRiskCategory(category);
   const radius = 40;
@@ -47,7 +49,7 @@ export function RiskRing({
         <span className="num font-display text-2xl font-semibold text-text-primary">
           {clamped}
         </span>
-        <span className="mt-0.5 text-[10px] text-text-muted">of 100</span>
+        <span className="mt-0.5 text-[10px] text-text-muted">{unit}</span>
       </div>
     </div>
   );

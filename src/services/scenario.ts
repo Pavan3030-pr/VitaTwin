@@ -70,11 +70,19 @@ function runModels(
   baseline: ScenarioBaseline,
   scenario: ScenarioInput,
 ): [RiskResult, RiskResult, RiskResult] {
+  const base = baseline.riskInput;
+  // Knock-on effects use published relationships so the sliders behave like a
+  // body, not like isolated numbers:
+  //  - LDL moves total cholesterol 1:1 (HDL and triglycerides unchanged).
+  //  - ≈1 mmHg systolic BP per kg of weight (Neter, Hypertension 2003);
+  //    one BMI unit ≈ 2.9 kg at 170 cm.
   const input: RiskFactorsInput = {
-    ...baseline.riskInput,
+    ...base,
     hba1c: scenario.hba1c,
     ldl: scenario.ldl,
     bmi: scenario.bmi,
+    cholesterolTotal: Math.max(100, base.cholesterolTotal + (scenario.ldl - base.ldl)),
+    systolicBp: Math.round(base.systolicBp + 2.9 * (scenario.bmi - base.bmi)),
     smoking: scenario.smoker
       ? "Current"
       : baseline.riskInput.smoking === "Current"
@@ -109,12 +117,12 @@ export function simulateScenario(
     label: projected.label,
     baseline: before[index].value,
     projected: projected.value,
-    delta: projected.value - before[index].value,
+    delta: Math.round((projected.value - before[index].value) * 10) / 10,
     category: projected.category,
     drivers: projected.factors.slice(0, 3).map((factor) => factor.factor),
   }));
 
-  const total = scores.reduce((sum, score) => sum + score.delta, 0);
+  const total = Math.round(scores.reduce((sum, score) => sum + score.delta, 0) * 10) / 10;
   const headline =
     total === 0
       ? "No change from today's twin."

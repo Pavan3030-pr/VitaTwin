@@ -1,7 +1,7 @@
 "use server";
 
 import { getViewerSession } from "./auth";
-import { generateDemoBundle } from "./data";
+import { getActiveBundle } from "./active";
 import { simulateScenario } from "@/services/scenario";
 import type { ScenarioResult } from "@/types/scenario";
 
@@ -14,7 +14,7 @@ export async function runScenario(raw: unknown): Promise<ScenarioResult | null> 
   const session = await getViewerSession();
   if (session.source === "none") return null;
 
-  const { riskInput, vitals } = generateDemoBundle();
+  const { riskInput, vitals } = await getActiveBundle();
   return simulateScenario(
     {
       riskInput,

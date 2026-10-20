@@ -1,41 +1,75 @@
-# VitaTwin
+# VitaTwin — Your Living Digital Health Twin
 
-**Your Living Digital Health Twin**
+Proof of concept for the **Digital Twin Challenge 2026** (Happiest Health · *Reimagining & Reforming Healthcare in India*).
+Live demo: https://vita-twin-ten.vercel.app/ · Licence: MIT
 
-Proof-of-concept for the **Digital Twin Challenge 2026** — Reimagining & Reforming Healthcare in India Summit 2026 · Happiest Health.
+> **Patients are synthetic.** No real personal health information is processed or stored. VitaTwin is decision support for clinician review, not a medical device and not a diagnosis.
 
-> **All patient data in this application is synthetic.** No real personal health information is processed, stored, or transmitted. VitaTwin is not a medical device and does not provide a diagnosis.
+## The brief, and how VitaTwin answers it
 
----
+| Challenge asks for | VitaTwin |
+|---|---|
+| A dynamic virtual replica of a patient | A twin re-derived on every request from a live wearable stream + EHR snapshot; 5-second live panel; 10-day memory timeline |
+| Wearable **and** EHR fusion | Hourly HR / HRV / SpO₂ / sleep / steps fused with labs, diagnoses, medications (`src/services/twin-engine.ts`) |
+| Adverse-event prediction | **Early warning**: each person's own baseline, robust z-scores, 72-hour projection with lead time (`early-warning.ts`) |
+| Explainability | Every score lists factor-by-factor contributions (counterfactual attribution), with literature notes |
+| India relevance | South-Asian recalibration, Indian Diabetes Risk Score, Asian BMI cut-offs, FHIR R4 for ABDM, Indian cities |
+| Real-world grounding | See below |
+| What-if simulation | Server-side counterfactual sliders with physiological knock-on effects |
+| Privacy | Synthetic patients, stateless FHIR import, server-side authz, security headers, rate limiting |
 
-## What it does
+## What is real, what is simulated
 
-VitaTwin continuously fuses a wearable signal stream (heart rate, HRV, SpO2, sleep stages, steps) with an EHR snapshot (diagnoses, medications, labs) into a living digital twin.
+| Layer | Status |
+|---|---|
+| Risk equations: Framingham 2008 general CVD, South-Asian hazard ×1.4 (ACC/AHA 2019), UKPDS-35 HbA1c adjustment, Indian Diabetes Risk Score (Mohan 2005) | **Real, published** |
+| Air quality (PM2.5, AQI) and heat for the patient's city | **Real, live** (Open-Meteo, no key) |
+| Model check on 303 real patients (UCI Cleveland) — AUC, ROC, risk quartiles | **Real dataset**, reproducible: `npm run validate` |
+| FHIR R4 import of real hospital bundles (LOINC / SNOMED / ICD-10, unit conversion) | **Real interoperability** |
+| Patients and wearable streams (6 personas across 6 cities) | Synthetic, labelled in the UI |
 
-- **Multi-Patient Clinical Panel**: Multi-patient database schema migration (`supabase/migrations/0002_multi_patient_and_clinician.sql`) supporting clinician notes, patient switching, and role-based access.
-- **Data Providers Abstraction**: Flexible architecture (`src/services/data-providers/index.ts`) with Supabase persistence and zero-config synthetic default fallback.
-- **South-Asian Calibrated Risk Models**: Explainable cardiometabolic risk estimation (10-year CVD, Type 2 Diabetes, Acute Cardiac Stress) calibrated for South-Asian populations.
-- **What-If Counterfactual Simulator**: Interactive biomarker and lifestyle counterfactual scenario exploration.
-- **i18n Multi-Language Support**: Dual English (`en`) and Hindi (`hi`) translation support (`src/lib/i18n.ts`) for clinical panels, risk labels, and medical disclaimers.
-- **Health Verification API**: Health check endpoint at `/api/health` returning system status, timestamp, `mode: 'synthetic-default'`, `supabaseConfigured`, and `modelVersion`.
+Validation (honest): AUC **0.71** (95% CI 0.65–0.76) vs age-only 0.64; disease prevalence rises 21% → 71% across risk quartiles. Small, non-Indian referral cohort — a discrimination sanity check, not a clinical validation. Limitations are shown on the `/validation` page.
 
----
-
-## Getting Started
+## Run
 
 ```bash
-# 1. Install dependencies
-npm install
-
-# 2. Run local development server
-npm run dev
-
-# 3. Test API Health Verification Endpoint
-curl http://localhost:3000/api/health
+npm ci
+npm run dev          # http://localhost:3000  → "Continue with demo twin"
+npm test             # 70+ unit tests
+npm run validate     # re-run the real-data validation
+npm run build
 ```
 
----
+Optional: set `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` for email sign-in (see `docs/DEPLOYMENT.md`).
 
-## Deployment & Verification (Vercel + Supabase)
+## Architecture
 
-See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for full deployment runbook instructions.
+```mermaid
+flowchart LR
+  W[Wearable stream<br/>simulated] --> F[Fusion + personal baseline]
+  E[EHR snapshot<br/>synthetic / FHIR import] --> F
+  A[Open-Meteo<br/>live AQI + heat] --> R
+  F --> EW[Early warning<br/>72 h forecast]
+  F --> R[Risk models<br/>Framingham-SA · IDRS · acute]
+  EW --> R
+  R --> X[Explainable twin state<br/>alerts · recommendations]
+  X --> UI[Patient dashboard · Clinician panel · What-if]
+  X --> FH[FHIR R4 export]
+```
+
+All clinical computation runs on the server; the browser receives only the derived, explainable summary. See `docs/ARCHITECTURE.md`, `docs/MODEL_CARD.md`, `docs/SECURITY.md`.
+
+## Demo path (3 minutes)
+
+1. **Dashboard** → Rajesh (Hyderabad): early-warning card shows rising strain and an hours-to-urgent lead time; live stream updates every 5 s.
+2. Switch to **Priya (Delhi)**: live smog changes her acute-risk drivers; alert cites real PM2.5.
+3. **What-if**: quit smoking / lower HbA1c / lose weight → models re-run server-side.
+4. **Clinician view**: six-patient panel sorted by urgency.
+5. **FHIR**: load the sample ABDM-style bundle, then export the twin back as FHIR.
+6. **Validation**: ROC and quartiles on 303 real patients, with limitations.
+
+## Data sources and references
+
+- D'Agostino et al., *Circulation* 2008;117:743 (Framingham) · Grundy et al., ACC/AHA 2019 · Stratton et al., *BMJ* 2000;321:405 (UKPDS-35) · Mohan et al., *JAPI* 2005;53:759 (IDRS)
+- Brook et al., AHA statement, *Circulation* 2010;121:2331 (air pollution) · Cooney 2010, Cappuccio 2011, Fang 2020 (resting HR, sleep, HRV)
+- Detrano et al., *Am J Cardiol* 1989;64:304 — UCI Heart Disease (CC BY 4.0) · Open-Meteo (CC BY 4.0) · ICMR-INDIAB 2023

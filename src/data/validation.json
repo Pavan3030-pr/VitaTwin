@@ -1,0 +1,390 @@
+{
+  "generatedAt": "2026-10-20",
+  "dataset": {
+    "name": "UCI Heart Disease — Cleveland Clinic cohort",
+    "citation": "Detrano R, et al. International application of a new probability algorithm for the diagnosis of coronary artery disease. Am J Cardiol 1989;64:304-310. UCI Machine Learning Repository, CC BY 4.0.",
+    "url": "https://archive.ics.uci.edu/dataset/45/heart+disease",
+    "n": 303,
+    "disease": 138,
+    "noDisease": 165,
+    "prevalencePct": 45.5,
+    "meanAgeDisease": 56.6,
+    "meanAgeNoDisease": 52.5
+  },
+  "models": [
+    {
+      "id": "vitatwin",
+      "label": "VitaTwin CVD score (Framingham 2008, South-Asian adjusted)",
+      "auc": 0.706,
+      "ci95": [
+        0.649,
+        0.762
+      ],
+      "note": "Used exactly as shipped. HDL set to a sex-typical value and smoking unknown because neither is recorded."
+    },
+    {
+      "id": "age",
+      "label": "Age alone (baseline)",
+      "auc": 0.638,
+      "note": "The simplest sensible comparator."
+    },
+    {
+      "id": "logistic",
+      "label": "Logistic regression refit on this cohort (5-fold CV)",
+      "auc": 0.709,
+      "note": "Age, sex, BP, cholesterol and fasting glucose; an upper reference for what these five inputs can achieve here."
+    }
+  ],
+  "quartiles": [
+    {
+      "quartile": "Q1",
+      "n": 75,
+      "riskRange": "1.5–9.6%",
+      "observedDiseasePct": 21.3
+    },
+    {
+      "quartile": "Q2",
+      "n": 76,
+      "riskRange": "9.7–17.8%",
+      "observedDiseasePct": 38.2
+    },
+    {
+      "quartile": "Q3",
+      "n": 76,
+      "riskRange": "17.9–26.5%",
+      "observedDiseasePct": 51.3
+    },
+    {
+      "quartile": "Q4",
+      "n": 76,
+      "riskRange": "26.7–80.7%",
+      "observedDiseasePct": 71.1
+    }
+  ],
+  "operatingPoints": [
+    {
+      "cutoffPct": 7.5,
+      "sensitivity": 92.8,
+      "specificity": 23,
+      "flaggedPct": 84.2
+    },
+    {
+      "cutoffPct": 20,
+      "sensitivity": 60.1,
+      "specificity": 71.5,
+      "flaggedPct": 42.9
+    }
+  ],
+  "roc": [
+    {
+      "fpr": 0,
+      "tpr": 0
+    },
+    {
+      "fpr": 0.006,
+      "tpr": 0.014
+    },
+    {
+      "fpr": 0.006,
+      "tpr": 0.036
+    },
+    {
+      "fpr": 0.006,
+      "tpr": 0.058
+    },
+    {
+      "fpr": 0.018,
+      "tpr": 0.065
+    },
+    {
+      "fpr": 0.024,
+      "tpr": 0.08
+    },
+    {
+      "fpr": 0.03,
+      "tpr": 0.094
+    },
+    {
+      "fpr": 0.036,
+      "tpr": 0.109
+    },
+    {
+      "fpr": 0.048,
+      "tpr": 0.116
+    },
+    {
+      "fpr": 0.061,
+      "tpr": 0.13
+    },
+    {
+      "fpr": 0.067,
+      "tpr": 0.145
+    },
+    {
+      "fpr": 0.073,
+      "tpr": 0.159
+    },
+    {
+      "fpr": 0.085,
+      "tpr": 0.174
+    },
+    {
+      "fpr": 0.097,
+      "tpr": 0.181
+    },
+    {
+      "fpr": 0.109,
+      "tpr": 0.196
+    },
+    {
+      "fpr": 0.115,
+      "tpr": 0.21
+    },
+    {
+      "fpr": 0.115,
+      "tpr": 0.232
+    },
+    {
+      "fpr": 0.115,
+      "tpr": 0.261
+    },
+    {
+      "fpr": 0.121,
+      "tpr": 0.275
+    },
+    {
+      "fpr": 0.121,
+      "tpr": 0.297
+    },
+    {
+      "fpr": 0.133,
+      "tpr": 0.304
+    },
+    {
+      "fpr": 0.133,
+      "tpr": 0.326
+    },
+    {
+      "fpr": 0.133,
+      "tpr": 0.355
+    },
+    {
+      "fpr": 0.133,
+      "tpr": 0.384
+    },
+    {
+      "fpr": 0.145,
+      "tpr": 0.399
+    },
+    {
+      "fpr": 0.158,
+      "tpr": 0.406
+    },
+    {
+      "fpr": 0.164,
+      "tpr": 0.428
+    },
+    {
+      "fpr": 0.176,
+      "tpr": 0.435
+    },
+    {
+      "fpr": 0.194,
+      "tpr": 0.442
+    },
+    {
+      "fpr": 0.194,
+      "tpr": 0.471
+    },
+    {
+      "fpr": 0.212,
+      "tpr": 0.486
+    },
+    {
+      "fpr": 0.224,
+      "tpr": 0.507
+    },
+    {
+      "fpr": 0.236,
+      "tpr": 0.529
+    },
+    {
+      "fpr": 0.242,
+      "tpr": 0.543
+    },
+    {
+      "fpr": 0.248,
+      "tpr": 0.558
+    },
+    {
+      "fpr": 0.248,
+      "tpr": 0.587
+    },
+    {
+      "fpr": 0.285,
+      "tpr": 0.601
+    },
+    {
+      "fpr": 0.309,
+      "tpr": 0.609
+    },
+    {
+      "fpr": 0.327,
+      "tpr": 0.623
+    },
+    {
+      "fpr": 0.345,
+      "tpr": 0.638
+    },
+    {
+      "fpr": 0.352,
+      "tpr": 0.652
+    },
+    {
+      "fpr": 0.37,
+      "tpr": 0.674
+    },
+    {
+      "fpr": 0.382,
+      "tpr": 0.696
+    },
+    {
+      "fpr": 0.394,
+      "tpr": 0.71
+    },
+    {
+      "fpr": 0.394,
+      "tpr": 0.732
+    },
+    {
+      "fpr": 0.412,
+      "tpr": 0.732
+    },
+    {
+      "fpr": 0.43,
+      "tpr": 0.739
+    },
+    {
+      "fpr": 0.442,
+      "tpr": 0.754
+    },
+    {
+      "fpr": 0.448,
+      "tpr": 0.783
+    },
+    {
+      "fpr": 0.461,
+      "tpr": 0.79
+    },
+    {
+      "fpr": 0.479,
+      "tpr": 0.79
+    },
+    {
+      "fpr": 0.527,
+      "tpr": 0.797
+    },
+    {
+      "fpr": 0.533,
+      "tpr": 0.812
+    },
+    {
+      "fpr": 0.545,
+      "tpr": 0.826
+    },
+    {
+      "fpr": 0.558,
+      "tpr": 0.833
+    },
+    {
+      "fpr": 0.582,
+      "tpr": 0.848
+    },
+    {
+      "fpr": 0.588,
+      "tpr": 0.862
+    },
+    {
+      "fpr": 0.618,
+      "tpr": 0.862
+    },
+    {
+      "fpr": 0.642,
+      "tpr": 0.884
+    },
+    {
+      "fpr": 0.655,
+      "tpr": 0.899
+    },
+    {
+      "fpr": 0.667,
+      "tpr": 0.92
+    },
+    {
+      "fpr": 0.703,
+      "tpr": 0.92
+    },
+    {
+      "fpr": 0.733,
+      "tpr": 0.92
+    },
+    {
+      "fpr": 0.764,
+      "tpr": 0.928
+    },
+    {
+      "fpr": 0.776,
+      "tpr": 0.935
+    },
+    {
+      "fpr": 0.8,
+      "tpr": 0.935
+    },
+    {
+      "fpr": 0.824,
+      "tpr": 0.935
+    },
+    {
+      "fpr": 0.842,
+      "tpr": 0.964
+    },
+    {
+      "fpr": 0.861,
+      "tpr": 0.971
+    },
+    {
+      "fpr": 0.885,
+      "tpr": 0.978
+    },
+    {
+      "fpr": 0.903,
+      "tpr": 0.986
+    },
+    {
+      "fpr": 0.921,
+      "tpr": 0.993
+    },
+    {
+      "fpr": 0.952,
+      "tpr": 1
+    },
+    {
+      "fpr": 0.97,
+      "tpr": 1
+    },
+    {
+      "fpr": 0.988,
+      "tpr": 1
+    },
+    {
+      "fpr": 1,
+      "tpr": 1
+    }
+  ],
+  "limitations": [
+    "Outcome is prevalent angiographic coronary disease in a referral cohort, not incident 10-year events.",
+    "Cleveland patients are mostly US-based; no South-Asian cohort was available under an open licence.",
+    "HDL and smoking are missing, which understates what the model can do with full inputs.",
+    "n = 303; confidence intervals are wide. This is a sanity check on discrimination, not a clinical validation."
+  ]
+}

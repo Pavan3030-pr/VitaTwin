@@ -134,11 +134,11 @@ describe("computeCvD10YearRisk", () => {
       expect(result.value).toBeLessThanOrEqual(100);
 
       const band =
-        result.value < 20
+        result.value < 7.5
           ? "low"
-          : result.value < 40
+          : result.value < 20
             ? "moderate"
-            : result.value < 70
+            : result.value < 30
               ? "high"
               : "critical";
       expect(result.category).toBe(band);

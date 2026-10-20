@@ -323,13 +323,33 @@ function pickSleepStage(hour: number): WearableSample["sleepStage"] {
   return hour < 3 ? pick([deep, deep, light]) : pick([light, rem, light]);
 }
 
+/** Order in which night hours are filled as sleep gets longer. */
+const SLEEP_HOUR_ORDER = [2, 3, 1, 4, 0, 5, 23, 22] as const;
+
+/** Persona-level shaping of the simulated stream (routine + deterioration). */
+export interface StreamOptions {
+  restingHr?: number;
+  stepsRange?: readonly [number, number];
+  sleepRange?: readonly [number, number];
+  /** Injects a worsening trend into the most recent days (demo of early warning). */
+  deterioration?: {
+    lastDays: number;
+    hrDelta: number;
+    hrvFactor: number;
+    sleepCut: number;
+    stepsFactor: number;
+  };
+}
+
 /**
  * Generates one sample per hour across the window. Night hours (22:00–05:59)
- * carry sleep stages, so the fused twin has a realistic sleep duration.
+ * carry sleep stages; nightly sleep duration varies per day so the personal
+ * baseline and its deviations are meaningful.
  */
 export function generateWearableStream(
   patientId: string,
   windowDays: number,
+  options: StreamOptions = {},
 ): WearableStream {
   const samples: WearableSample[] = [];
 
@@ -343,29 +363,43 @@ export function generateWearableStream(
   );
 
   // A per-patient baseline so trends look like a person, not noise.
-  const restingHr = Math.round(rand(62, 84));
+  const restingHr = options.restingHr ?? Math.round(rand(62, 84));
+  const [stepsLo, stepsHi] = options.stepsRange ?? [2800, 11000];
+  const [sleepLo, sleepHi] = options.sleepRange ?? [4.5, 8.2];
+  const det = options.deterioration;
 
   for (let day = 0; day < windowDays; day += 1) {
-    const dayStepsTarget = Math.round(rand(2800, 11000));
-    const sleepHoursTonight = toFixed(rand(4.5, 8.2), 1);
+    // 0 = normal, rising to 1 across the deteriorating days (ramp, not a step).
+    const firstBadDay = windowDays - 1 - (det?.lastDays ?? 0);
+    const ramp = det && day >= firstBadDay ? (day - firstBadDay + 1) / (det.lastDays + 1) : 0;
+
+    const dayStepsTarget = Math.round(
+      rand(stepsLo, stepsHi) * (det ? 1 - ramp * (1 - det.stepsFactor) : 1),
+    );
+    const sleepHoursTonight = toFixed(
+      Math.max(3, rand(sleepLo, sleepHi) - (det ? ramp * det.sleepCut : 0)),
+      1,
+    );
+    const sleepHourCount = Math.max(3, Math.min(8, Math.round(sleepHoursTonight)));
+    const sleepHours = new Set<number>(SLEEP_HOUR_ORDER.slice(0, sleepHourCount));
 
     for (let hour = 0; hour < 24; hour += 1) {
       const night = isNightHour(hour);
 
       let sleepStage: WearableSample["sleepStage"] = "awake";
-      if (night && hour < 6 && sleepHoursTonight > 0) {
-        // Sleep occupies the small hours.
-        sleepStage = pickSleepStage(hour);
-      } else if (night && hour >= 22) {
-        sleepStage = rand(0, 1) > 0.5 ? "light" : "awake";
+      if (sleepHours.has(hour)) {
+        // Hours 22-23 are sleep onset; the small hours carry the deeper stages.
+        sleepStage = hour >= 22 ? "light" : pickSleepStage(hour);
       }
 
       const asleep = sleepStage !== "awake";
 
+      const hrShift = det ? ramp * det.hrDelta : 0;
+      const hrvScale = det ? 1 - ramp * (1 - det.hrvFactor) : 1;
       const heartRateBpm = asleep
-        ? Math.round(restingHr - rand(4, 12))
-        : Math.round(restingHr + rand(0, 22));
-      const hrvMs = Math.round(asleep ? rand(42, 68) : rand(26, 52));
+        ? Math.round(restingHr + hrShift - rand(4, 12))
+        : Math.round(restingHr + hrShift + rand(0, 22));
+      const hrvMs = Math.round((asleep ? rand(42, 68) : rand(26, 52)) * hrvScale);
       const spO2 = toFixed(rand(asleep ? 96 : 95, 99), 1);
 
       // Steps are spread across waking hours with a mid-day peak.

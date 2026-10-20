@@ -145,6 +145,65 @@ export interface TwinState {
   recommendations: Recommendation[];
   dataFreshnessSeconds: number;
   source: "synthetic";
+  /** Live real-world exposure for the patient's city (null when unreachable). */
+  environment?: EnvironmentSnapshot | null;
+  /** Personal-baseline early-warning analysis of the wearable stream. */
+  earlyWarning?: EarlyWarning;
+}
+
+/** Real, live ambient conditions (Open-Meteo, no key, CC BY 4.0). */
+export interface EnvironmentSnapshot {
+  city: string;
+  latitude: number;
+  longitude: number;
+  observedAt: string;
+  pm25: number | null;
+  pm10: number | null;
+  usAqi: number | null;
+  aqiCategory: string;
+  temperatureC: number | null;
+  apparentTemperatureC: number | null;
+  humidityPct: number | null;
+  source: "open-meteo";
+}
+
+export interface EarlyWarningSignal {
+  metric: "restingHr" | "hrv" | "sleep" | "steps";
+  label: string;
+  current: number;
+  baseline: number;
+  zScore: number;
+  unit: string;
+  direction: "worse" | "better" | "stable";
+}
+
+export interface ForecastPoint {
+  label: string;
+  hoursAhead: number;
+  index: number;
+  low: number;
+  high: number;
+}
+
+export interface EarlyWarning {
+  level: "stable" | "watch" | "warning" | "urgent";
+  /** 0-100 composite strain index versus the person's own baseline. */
+  index: number;
+  /** Hours until the index is projected to cross the urgent line; null if not rising. */
+  leadTimeHours: number | null;
+  headline: string;
+  signals: EarlyWarningSignal[];
+  history: { day: string; index: number }[];
+  forecast: ForecastPoint[];
+  baselineDays: number;
+}
+
+export interface DataProvenance {
+  id: string;
+  label: string;
+  kind: "synthetic" | "real-live" | "real-published" | "real-dataset";
+  detail: string;
+  asOf?: string;
 }
 
 export interface Alert {

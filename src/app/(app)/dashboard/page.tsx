@@ -5,7 +5,12 @@ import { RiskBadge, SeverityBadge } from "@/components/ui/risk-badge";
 import { RiskRing } from "@/components/twin/risk-ring";
 import { TwinFigure } from "@/components/twin/twin-figure";
 import { WhatIfPanel } from "@/components/twin/what-if-panel";
-import { generateDemoBundle } from "@/lib/data";
+import { LiveVitals } from "@/components/twin/live-vitals";
+import { EarlyWarningCard } from "@/components/twin/early-warning-card";
+import { EnvironmentCard } from "@/components/twin/environment-card";
+import { ProvenanceCard } from "@/components/twin/provenance-card";
+import { PatientSwitcher } from "@/components/twin/patient-switcher";
+import { getActiveBundle } from "@/lib/active";
 import { baselineScenario, simulateScenario } from "@/services/scenario";
 
 export const dynamic = "force-dynamic";
@@ -19,8 +24,9 @@ function formatTime(iso: string): string {
   });
 }
 
-export default function DashboardPage() {
-  const { twin, patient, vitals, riskInput } = generateDemoBundle();
+export default async function DashboardPage() {
+  const { twin, patient, vitals, riskInput, environment, earlyWarning, provenance, personaId } =
+    await getActiveBundle();
   const byType = (type: string) => twin.riskScores.find((score) => score.type === type);
   const risks = [byType("cvd-10yr"), byType("diabetes-progression"), byType("acute-stress")].filter(
     (score): score is NonNullable<typeof score> => Boolean(score),
@@ -52,6 +58,8 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-10">
+      <PatientSwitcher activeId={personaId} />
+
       {/* Identity row */}
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0">
@@ -131,7 +139,7 @@ export default function DashboardPage() {
               {risks.map((score) => (
                 <Card key={score.type} className="flex flex-col gap-3">
                   <div className="flex items-center gap-4 sm:flex-col sm:items-start xl:flex-col lg:flex-row">
-                    <RiskRing value={score.value} category={score.category} size={88} />
+                    <RiskRing value={score.value} category={score.category} size={88} unit={score.type === "cvd-10yr" ? "% / 10 yr" : "of 100"} />
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-text-primary">{score.label}</p>
                       <div className="mt-1">
@@ -158,6 +166,13 @@ export default function DashboardPage() {
             </div>
           </section>
         </div>
+      </div>
+
+      <LiveVitals />
+
+      <div className="grid gap-8 lg:grid-cols-2">
+        <EarlyWarningCard ew={earlyWarning} />
+        <EnvironmentCard env={environment} city={patient.demographics.location.split(",")[0]} />
       </div>
 
       {/* Key readings (labels kept stable for e2e and the clinician hand-off) */}
@@ -239,16 +254,18 @@ export default function DashboardPage() {
         </section>
       </div>
 
+      <ProvenanceCard items={provenance} />
+
       {/* Provenance */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border border-dashed border-border-strong px-4 py-3">
         <span className="inline-flex items-center gap-1.5 text-sm font-medium text-primary-strong">
           <Brain className="h-4 w-4" aria-hidden="true" />
-          Twin engine v1
+          Twin engine v2
         </span>
         <span className="text-sm text-text-secondary">
           {twin.riskScores.length} explainable models · {twin.vitals.lastUpdated.slice(0, 10)} window
         </span>
-        <span className="text-sm text-text-muted">Synthetic dataset · not a clinical tool</span>
+        <span className="text-sm text-text-muted">Synthetic patients · real equations, real air quality · not a clinical tool</span>
       </div>
     </div>
   );

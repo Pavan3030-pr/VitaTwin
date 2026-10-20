@@ -1,29 +1,21 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
-export async function GET() {
-  const supabaseConfigured = Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  );
+export const dynamic = "force-dynamic";
 
-  return NextResponse.json(
-    {
-      status: 'ok',
-      service: 'VitaTwin API Engine',
-      version: '2.1.0',
-      modelVersion: '2.1.0',
-      timestamp: new Date().toISOString(),
-      mode: 'synthetic-default',
-      syntheticMode: true,
-      supabaseConfigured,
-      environment: process.env.NODE_ENV || 'production',
-      features: {
-        multiPatient: true,
-        clinicianPortal: true,
-        calibratedRiskModels: true,
-        i18nSupport: ['en', 'hi'],
-      },
+export function GET() {
+  return NextResponse.json({
+    status: "ok",
+    service: "VitaTwin",
+    version: "2.0.0",
+    modelVersions: {
+      cvd: "vita-twin-cvd-2.0-fram08-sa",
+      diabetes: "vita-twin-diabetes-2.0-idrs-ada",
+      acute: "vita-twin-acute-2.0-baseline-env",
     },
-    { status: 200 }
-  );
+    mode: "synthetic-patients+real-environment",
+    supabaseConfigured: Boolean(
+      process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    ),
+    timestamp: new Date().toISOString(),
+  });
 }

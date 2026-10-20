@@ -24,12 +24,12 @@ test.describe("VitaTwin main journey", () => {
 
     // Hero: a named synthetic patient and live vitals.
     await expect(page.getByText(/Twin live/i)).toBeVisible();
-    await expect(page.getByText(/Bengaluru, Karnataka/i)).toBeVisible();
+    await expect(page.getByText(/Hyderabad, Telangana/i)).toBeVisible();
 
     // Explainable risk cards (each card label is unique).
     const riskCards = page.locator("section", { hasText: "Explainable risk" });
     await expect(riskCards.getByText("10-year cardiovascular risk", { exact: true })).toBeVisible();
-    await expect(riskCards.getByText("Diabetes progression risk", { exact: true })).toBeVisible();
+    await expect(riskCards.getByText("Diabetes risk & progression", { exact: true })).toBeVisible();
     await expect(riskCards.getByText("Acute cardiac stress risk", { exact: true })).toBeVisible();
 
     // At least one alert with a recommended action.
@@ -93,7 +93,7 @@ test.describe("VitaTwin main journey", () => {
     await expect(page.getByText(/raises risk|lowers reserve/i).first()).toBeVisible();
 
     // The disclaimer.
-    await expect(page.getByText(/not validated clinical instruments/i)).toBeVisible();
+    await expect(page.getByText(/Decision support only; not a diagnosis/i)).toBeVisible();
   });
 
   test("vitals page renders charts from the wearable window", async ({ page }) => {

@@ -1,12 +1,12 @@
 import { Activity, Droplets, Footprints, HeartPulse, Moon, Wind } from "lucide-react";
 import { Card, CardHeader, PageHeader, SectionTitle } from "@/components/ui/card";
 import { VitalsChart } from "@/components/charts/vitals-chart";
-import { generateDemoBundle } from "@/lib/data";
+import { getActiveBundle } from "@/lib/active";
 
 export const dynamic = "force-dynamic";
 
-export default function VitalsPage() {
-  const { vitals, samples } = generateDemoBundle();
+export default async function VitalsPage() {
+  const { vitals, samples } = await getActiveBundle();
 
   const tiles = [
     {

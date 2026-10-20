@@ -7,8 +7,8 @@ import {
   type ScenarioBaseline,
 } from "@/services/scenario";
 
-function baseline(): ScenarioBaseline {
-  const { riskInput, vitals } = generateDemoBundle();
+function baseline(personaId?: string): ScenarioBaseline {
+  const { riskInput, vitals } = generateDemoBundle(personaId);
   return {
     riskInput,
     vitals: {
@@ -41,7 +41,7 @@ describe("what-if scenarios", () => {
   });
 
   it("quitting smoking lowers cardiovascular risk", () => {
-    const base = baseline();
+    const base = baseline("vt-005"); // current smoker with premature CAD in the family
     expect(base.riskInput.smoking).toBe("Current");
     const result = simulateScenario(base, { ...baselineScenario(base), smoker: false });
     expect(scoreOf(result, "cvd-10yr").delta).toBeLessThan(0);
@@ -75,5 +75,19 @@ describe("what-if scenarios", () => {
     expect(clean.restingHr).toBe(45);
     expect(sanitizeScenario("not an object", start)).toEqual(start);
     expect(() => simulateScenario(base, undefined)).not.toThrow();
+  });
+});
+
+describe("what-if knock-on effects", () => {
+  it("losing weight lowers cardiovascular risk through blood pressure", () => {
+    const base = baseline();
+    const result = simulateScenario(base, { ...baselineScenario(base), bmi: base.riskInput.bmi - 3 });
+    expect(scoreOf(result, "cvd-10yr").delta).toBeLessThan(0);
+  });
+
+  it("lowering LDL lowers cardiovascular risk via total cholesterol", () => {
+    const base = baseline();
+    const result = simulateScenario(base, { ...baselineScenario(base), ldl: 70 });
+    expect(scoreOf(result, "cvd-10yr").delta).toBeLessThan(0);
   });
 });

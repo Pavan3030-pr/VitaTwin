@@ -59,7 +59,7 @@ describe("generateDemoBundle", () => {
   });
 
   it("exposes a wearable window with hourly coverage", () => {
-    expect(samples.length).toBe(7 * 24);
+    expect(samples.length).toBe(10 * 24);
   });
 
   it("produces three explainable risk scores inside 0–100", () => {
@@ -80,6 +80,6 @@ describe("generateDemoBundle", () => {
   });
 
   it("shows the documented India-relevant context", () => {
-    expect(patient.demographics.location).toContain("Karnataka");
+    expect(patient.demographics.location).toMatch(/Telangana|Delhi|Maharashtra|Kerala|Tamil Nadu|West Bengal|Karnataka/);
   });
 });

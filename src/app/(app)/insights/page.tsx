@@ -1,7 +1,7 @@
 import { Lightbulb, ShieldAlert, Sparkles } from "lucide-react";
 import { Card, PageHeader, SectionTitle } from "@/components/ui/card";
 import { RiskBadge, SeverityBadge } from "@/components/ui/risk-badge";
-import { generateDemoBundle } from "@/lib/data";
+import { getActiveBundle } from "@/lib/active";
 
 export const dynamic = "force-dynamic";
 
@@ -11,8 +11,8 @@ const directionLabel: Record<string, string> = {
   neutral: "neutral",
 };
 
-export default function InsightsPage() {
-  const { twin } = generateDemoBundle();
+export default async function InsightsPage() {
+  const { twin } = await getActiveBundle();
 
   return (
     <div className="space-y-7">
@@ -36,7 +36,7 @@ export default function InsightsPage() {
                 <div className="flex items-center gap-2">
                   <span className="text-2xl font-semibold tabular-nums text-text-primary">
                     {score.value}
-                    <span className="ml-1 text-xs font-normal text-text-muted">/100</span>
+                    <span className="ml-1 text-xs font-normal text-text-muted">{score.type === "cvd-10yr" ? "% 10-yr" : "/100"}</span>
                   </span>
                   <RiskBadge category={score.category} />
                 </div>
@@ -66,7 +66,7 @@ export default function InsightsPage() {
                             </span>
                           </td>
                           <td className="py-1.5 pr-3 tabular-nums text-text-secondary">
-                            +{factor.weight}
+                            +{factor.weight}{score.type === "cvd-10yr" ? " pts" : ""}
                           </td>
                           <td className="py-1.5 text-text-secondary">
                             {directionLabel[factor.direction] ?? factor.direction}
@@ -148,9 +148,7 @@ export default function InsightsPage() {
       <Card className="flex items-start gap-2 border-dashed">
         <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
         <p className="text-xs leading-relaxed text-text-secondary">
-          These are heuristic proof-of-concept models. They illustrate how a
-          digital twin can explain itself; they are not validated clinical
-          instruments and must not guide real treatment decisions.
+          Risk equations are published models (Framingham 2008 with South-Asian adjustment, UKPDS-35, Indian Diabetes Risk Score) checked against a real cohort on the Validation page. Patients are synthetic. Decision support only; not a diagnosis.
         </p>
       </Card>
     </div>

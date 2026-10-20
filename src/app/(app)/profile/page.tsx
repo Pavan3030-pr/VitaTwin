@@ -1,5 +1,5 @@
 import { Card, PageHeader, SectionTitle } from "@/components/ui/card";
-import { generateDemoBundle } from "@/lib/data";
+import { getActiveBundle } from "@/lib/active";
 
 export const dynamic = "force-dynamic";
 
@@ -9,8 +9,8 @@ const FLAG_STYLES: Record<string, string> = {
   low: "text-warning-ink",
 };
 
-export default function ProfilePage() {
-  const { patient } = generateDemoBundle();
+export default async function ProfilePage() {
+  const { patient } = await getActiveBundle();
   const { demographics, riskFactors } = patient;
 
   const facts = [

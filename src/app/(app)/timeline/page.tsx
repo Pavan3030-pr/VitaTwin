@@ -1,5 +1,5 @@
 import { Card, PageHeader, SectionTitle } from "@/components/ui/card";
-import { generateDemoBundle } from "@/lib/data";
+import { getActiveBundle } from "@/lib/active";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +14,7 @@ interface DaySnapshot {
 }
 
 /** Rolls the wearable stream up into one snapshot per calendar day. */
-function buildSnapshots(samples: ReturnType<typeof generateDemoBundle>["samples"]): DaySnapshot[] {
+function buildSnapshots(samples: Awaited<ReturnType<typeof getActiveBundle>>["samples"]): DaySnapshot[] {
   const buckets = new Map<string, typeof samples>();
 
   for (const sample of samples) {
@@ -61,8 +61,8 @@ function buildSnapshots(samples: ReturnType<typeof generateDemoBundle>["samples"
     });
 }
 
-export default function TimelinePage() {
-  const { samples, twin } = generateDemoBundle();
+export default async function TimelinePage() {
+  const { samples, twin } = await getActiveBundle();
   const snapshots = buildSnapshots(samples).reverse();
 
   return (

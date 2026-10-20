@@ -59,6 +59,13 @@ flowchart LR
 
 All clinical computation runs on the server; the browser receives only the derived, explainable summary. See `docs/ARCHITECTURE.md`, `docs/MODEL_CARD.md`, `docs/SECURITY.md`.
 
+## Connect your own data
+
+Upload a wearable CSV (Apple Health / Google Fit / generic) or a FHIR R4 bundle on **/import**.
+Both paths are stateless. Sample wearable: `/api/wearable/sample`.
+
+Early-warning backtest results are on **/validation** (`npm run backtest-ew`).
+
 ## Demo path (3 minutes)
 
 1. **Dashboard** → Rajesh (Hyderabad): early-warning card shows rising strain and an hours-to-urgent lead time; live stream updates every 5 s.

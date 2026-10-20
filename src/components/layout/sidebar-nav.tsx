@@ -28,7 +28,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/timeline", label: "Timeline", short: "History", icon: History },
   { href: "/clinician", label: "Clinician view", short: "Clinic", icon: Stethoscope },
   { href: "/profile", label: "Profile & EHR", short: "Profile", icon: UserRound },
-  { href: "/import", label: "FHIR import / export", short: "FHIR", icon: FileJson },
+  { href: "/import", label: "Connect your data", short: "Import", icon: FileJson },
   { href: "/validation", label: "Model validation", short: "Validate", icon: ShieldCheck },
 ];
 

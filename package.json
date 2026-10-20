@@ -11,7 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest dev",
     "test:e2e": "playwright test",
-    "validate": "tsx scripts/validate-real-data.ts"
+    "validate": "tsx scripts/validate-real-data.ts",
+    "backtest-ew": "tsx scripts/backtest-early-warning.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

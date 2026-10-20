@@ -1,6 +1,7 @@
 import { ExternalLink } from "lucide-react";
 import { Card, PageHeader, SectionTitle } from "@/components/ui/card";
 import report from "@/data/validation.json";
+import ewReport from "@/data/early-warning-backtest.json";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +25,7 @@ export default function ValidationPage() {
     <div className="space-y-7">
       <PageHeader
         title="Model validation on real patients"
-        description="The twin's cardiovascular score is run, unchanged, on 303 real de-identified patients. We publish the result, including where it is weak."
+        description="Cardiovascular score on 303 real patients, plus a controlled backtest of the personal-baseline early-warning detector. Limitations are published alongside the numbers."
       />
 
       <section>
@@ -89,6 +90,67 @@ export default function ValidationPage() {
             </Card>
           ))}
         </div>
+      </section>
+
+      <section>
+        <SectionTitle hint={`Generated ${ewReport.generatedAt}`}>Early-warning detector backtest</SectionTitle>
+        <p className="mb-3 text-sm text-text-secondary">
+          {ewReport.method.description}
+        </p>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <Card>
+            <p className="num font-display text-3xl font-semibold text-text-primary">{ewReport.results.detectionRateAnyPct}%</p>
+            <p className="mt-1 text-sm font-semibold text-text-primary">Detection rate</p>
+            <p className="text-xs text-text-muted">Watch / warning / urgent on injected deterioration ({ewReport.method.eventTrials} trials)</p>
+          </Card>
+          <Card>
+            <p className="num font-display text-3xl font-semibold text-text-primary">{ewReport.results.detectionRateWarningOrUrgentPct}%</p>
+            <p className="mt-1 text-sm font-semibold text-text-primary">Strong alerts</p>
+            <p className="text-xs text-text-muted">Warning or urgent only</p>
+          </Card>
+          <Card>
+            <p className="num font-display text-3xl font-semibold text-text-primary">{ewReport.results.falsePositiveRatePct}%</p>
+            <p className="mt-1 text-sm font-semibold text-text-primary">False-positive rate</p>
+            <p className="text-xs text-text-muted">Warning/urgent on stable series ({ewReport.method.stableTrials} trials)</p>
+          </Card>
+          <Card>
+            <p className="num font-display text-3xl font-semibold text-text-primary">
+              {ewReport.results.meanLeadTimeHoursWhenProjected != null
+                ? `~${ewReport.results.meanLeadTimeHoursWhenProjected} h`
+                : "—"}
+            </p>
+            <p className="mt-1 text-sm font-semibold text-text-primary">Mean projected lead time</p>
+            <p className="text-xs text-text-muted">When the 72 h forecast crosses the urgent line</p>
+          </Card>
+        </div>
+        <Card className="mt-3 p-0">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-bg-subtle text-xs text-text-secondary">
+              <tr>
+                <th className="px-4 py-2 font-medium">Event kind</th>
+                <th className="px-4 py-2 font-medium">Trials</th>
+                <th className="px-4 py-2 font-medium">Any detection</th>
+                <th className="px-4 py-2 font-medium">Warning / urgent</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(ewReport.results.byKind).map(([kind, row]) => (
+                <tr key={kind} className="border-t border-border">
+                  <td className="px-4 py-2 font-medium capitalize text-text-primary">{kind.replace("_", " ")}</td>
+                  <td className="px-4 py-2 num">{row.n}</td>
+                  <td className="px-4 py-2 num">{row.detectionPct}%</td>
+                  <td className="px-4 py-2 num">{row.warningOrUrgentPct}%</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card>
+        <ul className="mt-3 space-y-1 text-xs text-text-secondary">
+          {ewReport.limitations.map((l) => (
+            <li key={l}>• {l}</li>
+          ))}
+        </ul>
+        <p className="mt-2 text-xs text-text-muted">Reproduce: <code>npm run backtest-ew</code></p>
       </section>
 
       <Card className="space-y-2">

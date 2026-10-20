@@ -1,7 +1,7 @@
 {
   "generatedAt": "2026-10-20",
   "dataset": {
-    "name": "UCI Heart Disease — Cleveland Clinic cohort",
+    "name": "UCI Heart Disease \u2014 Cleveland Clinic cohort",
     "citation": "Detrano R, et al. International application of a new probability algorithm for the diagnosis of coronary artery disease. Am J Cardiol 1989;64:304-310. UCI Machine Learning Repository, CC BY 4.0.",
     "url": "https://archive.ics.uci.edu/dataset/45/heart+disease",
     "n": 303,
@@ -39,25 +39,25 @@
     {
       "quartile": "Q1",
       "n": 75,
-      "riskRange": "1.5–9.6%",
+      "riskRange": "1.5\u20139.6%",
       "observedDiseasePct": 21.3
     },
     {
       "quartile": "Q2",
       "n": 76,
-      "riskRange": "9.7–17.8%",
+      "riskRange": "9.7\u201317.8%",
       "observedDiseasePct": 38.2
     },
     {
       "quartile": "Q3",
       "n": 76,
-      "riskRange": "17.9–26.5%",
+      "riskRange": "17.9\u201326.5%",
       "observedDiseasePct": 51.3
     },
     {
       "quartile": "Q4",
       "n": 76,
-      "riskRange": "26.7–80.7%",
+      "riskRange": "26.7\u201380.7%",
       "observedDiseasePct": 71.1
     }
   ],
@@ -385,6 +385,40 @@
     "Outcome is prevalent angiographic coronary disease in a referral cohort, not incident 10-year events.",
     "Cleveland patients are mostly US-based; no South-Asian cohort was available under an open licence.",
     "HDL and smoking are missing, which understates what the model can do with full inputs.",
-    "n = 303; confidence intervals are wide. This is a sanity check on discrimination, not a clinical validation."
-  ]
+    "n = 303; confidence intervals are wide. This is a sanity check on discrimination, not a clinical validation.",
+    "Calibration is descriptive (quartile mean predicted vs observed disease), not a formal Hosmer\u2013Lemeshow test."
+  ],
+  "calibration": [
+    {
+      "bin": "Q1 (lowest risk)",
+      "meanPredictedPct": 5.5,
+      "observedDiseasePct": 21.3,
+      "n": 75
+    },
+    {
+      "bin": "Q2",
+      "meanPredictedPct": 13.5,
+      "observedDiseasePct": 38.2,
+      "n": 76
+    },
+    {
+      "bin": "Q3",
+      "meanPredictedPct": 22.0,
+      "observedDiseasePct": 51.3,
+      "n": 76
+    },
+    {
+      "bin": "Q4 (highest risk)",
+      "meanPredictedPct": 38.0,
+      "observedDiseasePct": 71.1,
+      "n": 76
+    }
+  ],
+  "indiaContext": {
+    "source": "ICMR-INDIAB 2023",
+    "diabetesPrevalencePct": 11.4,
+    "prediabetesPrevalencePct": 15.3,
+    "hypertensionNote": "Hypertension and diabetes co-travel in urban India; ABDM FHIR is the national exchange standard.",
+    "whySouthAsianMultiplier": "ACC/AHA 2019 notes ~1.4\u00d7 CHD hazard in South Asians vs White Europeans at the same Framingham inputs."
+  }
 }

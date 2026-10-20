@@ -153,7 +153,48 @@ export default function ValidationPage() {
         <p className="mt-2 text-xs text-text-muted">Reproduce: <code>npm run backtest-ew</code></p>
       </section>
 
-      <Card className="space-y-2">
+            {"calibration" in report && report.calibration ? (
+        <section>
+          <SectionTitle hint="Predicted vs observed">Risk calibration (quartile bins)</SectionTitle>
+          <Card className="p-0">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-bg-subtle text-xs text-text-secondary">
+                <tr>
+                  <th className="px-4 py-2 font-medium">Bin</th>
+                  <th className="px-4 py-2 font-medium">Mean predicted</th>
+                  <th className="px-4 py-2 font-medium">Observed disease</th>
+                  <th className="px-4 py-2 font-medium">n</th>
+                </tr>
+              </thead>
+              <tbody>
+                {report.calibration.map((c) => (
+                  <tr key={c.bin} className="border-t border-border">
+                    <td className="px-4 py-2 text-text-primary">{c.bin}</td>
+                    <td className="px-4 py-2 num">{c.meanPredictedPct}%</td>
+                    <td className="px-4 py-2 num font-semibold">{c.observedDiseasePct}%</td>
+                    <td className="px-4 py-2 num">{c.n}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Card>
+          <p className="mt-2 text-xs text-text-muted">
+            Observed disease rises with predicted risk. Absolute levels reflect a high-prevalence referral cohort — not general-population calibration.
+          </p>
+        </section>
+      ) : null}
+
+      {"indiaContext" in report && report.indiaContext ? (
+        <Card className="space-y-2 border-primary/20 bg-bg-wash/40">
+          <p className="text-sm font-semibold text-text-primary">India context ({report.indiaContext.source})</p>
+          <p className="text-sm text-text-secondary">
+            Diabetes prevalence ~{report.indiaContext.diabetesPrevalencePct}% · prediabetes ~{report.indiaContext.prediabetesPrevalencePct}%. {report.indiaContext.hypertensionNote}
+          </p>
+          <p className="text-xs text-text-muted">{report.indiaContext.whySouthAsianMultiplier}</p>
+        </Card>
+      ) : null}
+
+<Card className="space-y-2">
         <p className="text-sm font-semibold text-text-primary">Dataset</p>
         <p className="text-sm text-text-secondary">
           {d.name}: n = {d.n}, {d.disease} with angiographic disease ({d.prevalencePct}%); mean age {d.meanAgeDisease} vs {d.meanAgeNoDisease}.

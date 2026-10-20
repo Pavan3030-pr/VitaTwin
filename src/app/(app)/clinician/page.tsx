@@ -54,6 +54,7 @@ export default async function ClinicianPage() {
                     <th className="px-4 py-2 font-medium">CVD 10-yr</th>
                     <th className="px-4 py-2 font-medium">Diabetes</th>
                     <th className="px-4 py-2 font-medium">Early warning</th>
+                    <th className="px-4 py-2 font-medium">Lead time</th>
                     <th className="px-4 py-2 font-medium">Air (AQI)</th>
                     <th className="px-4 py-2 font-medium">Alerts</th>
                   </tr>
@@ -75,6 +76,7 @@ export default async function ClinicianPage() {
                         <td className="px-4 py-2.5"><span className="num font-semibold">{cvd.value}%</span> <RiskBadge category={cvd.category} /></td>
                         <td className="px-4 py-2.5"><span className="num font-semibold">{dia.value}</span> <RiskBadge category={dia.category} /></td>
                         <td className="px-4 py-2.5 capitalize">{b.earlyWarning.level} <span className="num text-xs text-text-muted">({b.earlyWarning.index})</span></td>
+                        <td className="num px-4 py-2.5">{b.earlyWarning.leadTimeHours != null ? `~${b.earlyWarning.leadTimeHours} h` : "—"}</td>
                         <td className="num px-4 py-2.5">{b.environment?.usAqi ?? "—"}</td>
                         <td className="num px-4 py-2.5">{b.twin.alerts.length}</td>
                       </tr>

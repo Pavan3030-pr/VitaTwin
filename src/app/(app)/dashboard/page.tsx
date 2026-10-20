@@ -60,6 +60,11 @@ export default async function DashboardPage() {
     <div className="space-y-10">
       <PatientSwitcher activeId={personaId} />
 
+      <div className="rounded-xl border border-primary/15 bg-bg-wash/50 px-4 py-2.5 text-xs leading-relaxed text-text-secondary">
+        <span className="font-semibold text-text-primary">India context (ICMR-INDIAB 2023):</span>{" "}
+        diabetes ~11.4% · prediabetes ~15.3%. Models use South-Asian CVD hazard ×1.4 and IDRS — clinician decision support, not a diagnosis.
+      </div>
+
       {/* Identity row */}
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0">

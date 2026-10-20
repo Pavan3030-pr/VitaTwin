@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { analyzeWearable, type WearableActionState } from "@/lib/wearable-actions";
 import { Card } from "@/components/ui/card";
 import { RiskBadge } from "@/components/ui/risk-badge";
@@ -15,9 +15,37 @@ const LEVEL_STYLE: Record<string, string> = {
   urgent: "bg-danger-soft text-danger-ink",
 };
 
+type HistItem = { label: string; at: string; level: string; index: number; days: number };
+
 export function WearableImportForm() {
   const [state, action, pending] = useActionState(analyzeWearable, INITIAL);
   const result = state.result;
+  const [history, setHistory] = useState<HistItem[]>([]);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("vitatwin_upload_history");
+      if (raw) setHistory(JSON.parse(raw) as HistItem[]);
+    } catch { /* ignore */ }
+  }, []);
+
+  useEffect(() => {
+    if (!result?.ok) return;
+    const item: HistItem = {
+      label: result.patientLabel,
+      at: new Date().toISOString(),
+      level: result.earlyWarning.level,
+      index: result.earlyWarning.index,
+      days: result.dayCount,
+    };
+    setHistory((prev) => {
+      const next = [item, ...prev.filter((h) => h.label !== item.label)].slice(0, 8);
+      try {
+        localStorage.setItem("vitatwin_upload_history", JSON.stringify(next));
+      } catch { /* ignore */ }
+      return next;
+    });
+  }, [result]);
 
   return (
     <div className="space-y-5">
@@ -146,6 +174,22 @@ export function WearableImportForm() {
             </Card>
           </div>
         </div>
+      )}
+
+      {history.length > 0 && (
+        <Card>
+          <p className="text-sm font-semibold text-text-primary">Recent uploads (this browser only)</p>
+          <p className="mt-1 text-xs text-text-muted">Stored in localStorage — not sent to any server. Clear site data to erase.</p>
+          <ul className="mt-3 space-y-2">
+            {history.map((h) => (
+              <li key={h.at} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-bg-subtle/50 px-3 py-2 text-xs">
+                <span className="font-medium text-text-primary">{h.label}</span>
+                <span className="text-text-muted">{h.days}d · {h.level} ({h.index})</span>
+                <span className="text-text-muted">{new Date(h.at).toLocaleString("en-IN")}</span>
+              </li>
+            ))}
+          </ul>
+        </Card>
       )}
     </div>
   );

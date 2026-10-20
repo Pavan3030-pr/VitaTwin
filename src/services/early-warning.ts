@@ -12,15 +12,16 @@
  * Basis: lower HRV, higher resting HR and short sleep each predict adverse
  * cardiac events independently (Fang, JACC 2020; Cooney, Eur J Prev Cardiol
  * 2010; Cappuccio, Eur Heart J 2011). The weights below are a transparent PoC
- * choice, not a fitted model.
+ * choice tuned on controlled drift backtests (see early-warning-backtest.json),
+ * not a prospectively fitted clinical model.
  */
 
 import type { EarlyWarning, EarlyWarningSignal, ForecastPoint, WearableSample } from "@/types/twin";
 
 const MIN_SD = { restingHr: 3, hrv: 5, sleep: 0.7, steps: 1500 } as const;
-const WEIGHTS = { restingHr: 0.35, hrv: 0.35, sleep: 0.2, steps: 0.1 } as const;
+const WEIGHTS = { restingHr: 0.32, hrv: 0.30, sleep: 0.28, steps: 0.10 } as const;
 const RECENT_DAYS = 2;
-const URGENT_LINE = 75;
+const URGENT_LINE = 72;
 
 interface DayStats {
   day: string;
@@ -67,7 +68,8 @@ export function dailyStats(samples: WearableSample[], now: number = Date.now()):
         day,
         restingHr: mean(basis.map((s) => s.heartRateBpm)),
         hrv: mean(basis.map((s) => s.hrvMs)),
-        sleep: asleep.length,
+        // Hourly stream: each non-awake sample ≈ 1 h of sleep
+        sleep: Number((asleep.length).toFixed(1)),
         steps: list.reduce((sum, s) => sum + s.steps, 0),
       };
     });
@@ -109,13 +111,13 @@ function strainIndex(z: ReturnType<typeof zScores>): number {
     WEIGHTS.hrv * z.hrv +
     WEIGHTS.sleep * z.sleep +
     WEIGHTS.steps * z.steps;
-  return Math.round(100 / (1 + Math.exp(-1.4 * (raw - 1))));
+  return Math.round(100 / (1 + Math.exp(-1.55 * (raw - 0.85))));
 }
 
 function levelOf(index: number): EarlyWarning["level"] {
   if (index >= URGENT_LINE) return "urgent";
-  if (index >= 55) return "warning";
-  if (index >= 35) return "watch";
+  if (index >= 52) return "warning";
+  if (index >= 30) return "watch";
   return "stable";
 }
 

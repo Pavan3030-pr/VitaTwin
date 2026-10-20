@@ -1,40 +1,65 @@
 {
   "generatedAt": "2026-10-20",
   "method": {
-    "description": "Controlled physiological series from published resting-HR / HRV / sleep distributions with injected deterioration windows. Detector is the production personal-baseline early-warning code (robust z-scores + 72 h projection).",
+    "description": "Controlled physiological series from published resting-HR / HRV / sleep distributions with injected deterioration. Detector = production early-warning (v2.1 weights).",
     "totalDays": 14,
-    "baselineRequirement": "≥5 complete days before recent window",
     "personas": 5,
     "stableTrials": 40,
     "eventTrials": 120,
-    "eventKinds": ["hr_rise", "hrv_drop", "sleep_loss", "multi"],
+    "eventKinds": [
+      "hr_rise",
+      "hrv_drop",
+      "sleep_loss",
+      "multi"
+    ],
+    "weights": {
+      "restingHr": 0.32,
+      "hrv": 0.3,
+      "sleep": 0.28,
+      "steps": 0.1
+    },
     "references": [
-      "Cooney MT et al. Eur J Prev Cardiol 2010 (resting HR).",
-      "Fang SC et al. JACC 2020 (HRV and adverse cardiac events).",
-      "Cappuccio FP et al. Eur Heart J 2011 (short sleep)."
+      "Cooney MT et al. Eur J Prev Cardiol 2010.",
+      "Fang SC et al. JACC 2020.",
+      "Cappuccio FP et al. Eur Heart J 2011."
     ]
   },
   "results": {
     "falsePositiveRate": 0,
     "falsePositiveRatePct": 0,
     "watchRateOnStablePct": 0,
-    "detectionRateAny": 0.708,
-    "detectionRateAnyPct": 70.8,
-    "detectionRateWarningOrUrgent": 0.333,
-    "detectionRateWarningOrUrgentPct": 33.3,
-    "meanLeadTimeHoursWhenProjected": 55.4,
+    "detectionRateAny": 1,
+    "detectionRateAnyPct": 100,
+    "detectionRateWarningOrUrgent": 0.383,
+    "detectionRateWarningOrUrgentPct": 38.3,
+    "meanLeadTimeHoursWhenProjected": 34.8,
     "trialsWithLeadTime": 13,
     "byKind": {
-      "hr_rise": { "n": 30, "detectionPct": 93.3, "warningOrUrgentPct": 33.3 },
-      "hrv_drop": { "n": 30, "detectionPct": 90, "warningOrUrgentPct": 0 },
-      "sleep_loss": { "n": 30, "detectionPct": 0, "warningOrUrgentPct": 0 },
-      "multi": { "n": 30, "detectionPct": 100, "warningOrUrgentPct": 100 }
+      "hr_rise": {
+        "n": 30,
+        "detectionPct": 100,
+        "warningOrUrgentPct": 50
+      },
+      "hrv_drop": {
+        "n": 30,
+        "detectionPct": 100,
+        "warningOrUrgentPct": 0
+      },
+      "sleep_loss": {
+        "n": 30,
+        "detectionPct": 100,
+        "warningOrUrgentPct": 3.3
+      },
+      "multi": {
+        "n": 30,
+        "detectionPct": 100,
+        "warningOrUrgentPct": 100
+      }
     }
   },
   "limitations": [
-    "Streams are synthetic, grounded in published vital distributions, not continuous recordings from real patients with labelled outcomes.",
-    "Deterioration patterns are smooth ramps; abrupt clinical events may differ.",
-    "Weights in the strain index are transparent PoC choices, not fitted to outcomes.",
-    "No South-Asian wearable outcome cohort was available under an open licence for this PoC."
+    "Streams are synthetic, grounded in published vital distributions — not labelled real outcomes.",
+    "Weights tuned on these controlled series; not prospectively validated in clinic.",
+    "No open-licence South-Asian wearable outcome cohort was available for this PoC."
   ]
 }

@@ -1,184 +1,82 @@
-# VitaTwin
+# VitaTwin — Your Living Digital Health Twin
 
-<image-card alt="Build" src="https://img.shields.io/badge/build-passing-brightgreen" ></image-card>
-<image-card alt="Tests" src="https://img.shields.io/badge/tests-42%20passing-brightgreen" ></image-card>
-<image-card alt="Theme" src="https://img.shields.io/badge/theme-light%20only-blue" ></image-card>
-<image-card alt="Data" src="https://img.shields.io/badge/data-synthetic%20only-orange" ></image-card>
+Proof of concept for the **Digital Twin Challenge 2026** (Happiest Health · *Reimagining & Reforming Healthcare in India*).
+Live demo: https://vita-twin-ten.vercel.app/ · Licence: MIT
 
-**Your Living Digital Health Twin**
+> **Patients are synthetic.** No real personal health information is processed or stored. VitaTwin is decision support for clinician review, not a medical device and not a diagnosis.
 
-Proof-of-concept for the **Digital Twin Challenge 2026** —
-Reimagining & Reforming Healthcare in India Summit 2026 · Happiest Health.
+## The brief, and how VitaTwin answers it
 
-> **All patient data in this application is synthetic.** No real personal health
-> information is processed, stored, or transmitted. VitaTwin is not a medical
-> device and does not provide a diagnosis.
+| Challenge asks for | VitaTwin |
+|---|---|
+| A dynamic virtual replica of a patient | A twin re-derived on every request from a live wearable stream + EHR snapshot; 5-second live panel; 10-day memory timeline |
+| Wearable **and** EHR fusion | Hourly HR / HRV / SpO₂ / sleep / steps fused with labs, diagnoses, medications (`src/services/twin-engine.ts`) |
+| Adverse-event prediction | **Early warning**: each person's own baseline, robust z-scores, 72-hour projection with lead time (`early-warning.ts`) |
+| Explainability | Every score lists factor-by-factor contributions (counterfactual attribution), with literature notes |
+| India relevance | South-Asian recalibration, Indian Diabetes Risk Score, Asian BMI cut-offs, FHIR R4 for ABDM, Indian cities |
+| Real-world grounding | See below |
+| What-if simulation | Server-side counterfactual sliders with physiological knock-on effects |
+| Privacy | Synthetic patients, stateless FHIR import, server-side authz, security headers, rate limiting |
 
----
+## What is real, what is simulated
 
-## What it does
+| Layer | Status |
+|---|---|
+| Risk equations: Framingham 2008 general CVD, South-Asian hazard ×1.4 (ACC/AHA 2019), UKPDS-35 HbA1c adjustment, Indian Diabetes Risk Score (Mohan 2005) | **Real, published** |
+| Air quality (PM2.5, AQI) and heat for the patient's city | **Real, live** (Open-Meteo, no key) |
+| Model check on 303 real patients (UCI Cleveland) — AUC, ROC, risk quartiles | **Real dataset**, reproducible: `npm run validate` |
+| FHIR R4 import of real hospital bundles (LOINC / SNOMED / ICD-10, unit conversion) | **Real interoperability** |
+| Patients and wearable streams (6 personas across 6 cities) | Synthetic, labelled in the UI |
 
-VitaTwin continuously fuses a wearable signal stream (heart rate, HRV, SpO₂,
-sleep stages, steps) with an EHR snapshot (diagnoses, medications, labs) into a
-living digital twin of one patient. The twin then:
+Validation (honest): AUC **0.71** (95% CI 0.65–0.76) vs age-only 0.64; disease prevalence rises 21% → 71% across risk quartiles. Small, non-Indian referral cohort — a discrimination sanity check, not a clinical validation. Limitations are shown on the `/validation` page.
 
-- estimates **explainable** cardiometabolic risk (10-year CVD, diabetes
-  progression, acute cardiac stress) with per-factor contributions, never a
-  bare number;
-- raises prioritised **alerts** with a plain-language reading and a recommended
-  action;
-- produces **insights and recommendations** framed for both patient and
-  clinician views.
-
-The demo patient is a 52-year-old Indian adult with hypertension, type 2
-diabetes and hyperlipidaemia — the profile the Indian cardiometabolic burden is
-built around.
-
-## Stack
-
-| Layer | Choice |
-|-------|--------|
-| Framework | Next.js 15 (App Router) + TypeScript strict |
-| Styling | Tailwind CSS — **light theme only** |
-| Data + Auth | Supabase (Postgres + Auth + RLS) |
-| Charts | Recharts + custom SVG |
-| Tests | Vitest (unit) + Playwright (e2e) |
-| Deploy | Vercel |
-
-## Quick start
+## Run
 
 ```bash
-cp .env.example .env.local   # optional: add Supabase keys for real auth
-npm install
-npm run dev                  # http://localhost:3000
+npm ci
+npm run dev          
+npm test             
+npm run validate     
+npm run build
 ```
 
-The app runs **without any keys**: the landing page and the
-“Continue with demo twin” button open the synthetic twin offline. Email
-sign-in, session refresh and RLS are activated automatically once Supabase
-credentials are present.
+Optional: set `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` for email sign-in (see `docs/DEPLOYMENT.md`).
 
-### Supabase setup (optional but recommended)
+## Architecture
 
-1. Create a project at [supabase.com](https://supabase.com) (free tier is fine).
-2. Apply the schema in [supabase/migrations/0001_init.sql](supabase/migrations/0001_init.sql)
-   (`profiles` + `twin_snapshots`, both protected by RLS on `auth.uid()`).
-3. Put the Project URL and **anon** public key in `.env.local`:
-
-```
-NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon public key>
-```
-
-4. Restart `npm run dev`. The login screen now offers **Sign in / Create
-   account**, sessions are refreshed in middleware, and every row is scoped to
-   the owning user by RLS.
-
-The `service_role` key is never used by this app and never leaves the server.
-
-## Scripts
-
-| Command | Purpose |
-|---------|---------|
-| `npm run dev` | Development server |
-| `npm run build` | Production build |
-| `npm run lint` | ESLint (flat config, Next core-web-vitals + TS) |
-| `npm run typecheck` | `tsc --noEmit` |
-| `npm test` | Vitest unit tests |
-| `npm run test:e2e` | Playwright journey/auth/theme/responsive specs |
-
-## Project layout
-
-```
-src/
-  app/                 routes: landing, login, and the (app) twin group
-  components/          UI kit, charts, app shell
-  lib/                 synthetic data, demo bundle, auth + Supabase clients
-  services/            twin engine (fusion, risk, alerts, recommendations)
-  types/               shared twin domain model
-supabase/migrations/   Postgres schema + RLS policies
-tests/unit             Vitest specs (data generator, twin engine, bundle)
-tests/e2e              Playwright specs (journey, auth, theme, responsive)
-docs/                  PRD, ARCHITECTURE, DESIGN, RULES, TASKS, DECISIONS,
-                       MEMORY, TEST_PLAN, SECURITY, DEMO_SCRIPT
+```mermaid
+flowchart LR
+  W[Wearable stream<br/>simulated] --> F[Fusion + personal baseline]
+  E[EHR snapshot<br/>synthetic / FHIR import] --> F
+  A[Open-Meteo<br/>live AQI + heat] --> R
+  F --> EW[Early warning<br/>72 h forecast]
+  F --> R[Risk models<br/>Framingham-SA · IDRS · acute]
+  EW --> R
+  R --> X[Explainable twin state<br/>alerts · recommendations]
+  X --> UI[Patient dashboard · Clinician panel · What-if]
+  X --> FH[FHIR R4 export]
 ```
 
-## Documentation
+All clinical computation runs on the server; the browser receives only the derived, explainable summary. See `docs/ARCHITECTURE.md`, `docs/MODEL_CARD.md`, `docs/SECURITY.md`.
 
-The `/docs` folder is the project’s brain and stays current:
+## Connect your own data
 
-| File | Purpose |
-|------|---------|
-| [PRD.md](docs/PRD.md) | What we are building and why |
-| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | How it is built |
-| [DESIGN.md](docs/DESIGN.md) | Light-theme design system |
-| [RULES.md](docs/RULES.md) | How the agent must behave |
-| [TASKS.md](docs/TASKS.md) | Ordered checklist |
-| [DECISIONS.md](docs/DECISIONS.md) | Permanent choices + reasons |
-| [MEMORY.md](docs/MEMORY.md) | Current state of the project |
-| [TEST_PLAN.md](docs/TEST_PLAN.md) | What “working” means |
-| [SECURITY.md](docs/SECURITY.md) | Privacy & security rules |
-| [DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) | 3-minute jury walkthrough |
-| [DEPLOYMENT.md](docs/DEPLOYMENT.md) | Deploy + post-deploy verification runbook |
+Upload a wearable CSV (Apple Health / Google Fit / generic) or a FHIR R4 bundle on **/import**.
+Both paths are stateless. Sample wearable: `/api/wearable/sample`.
 
-## Hackathon context
+Early-warning backtest results are on **/validation** (`npm run backtest-ew`).
 
-- Prototype & code submission: 18 Sep – 20 Oct 2026
-- Jury presentation for the top 10, live showcase for the top 5 (Bengaluru)
+## Demo path (3 minutes)
 
----
+1. **Dashboard** → Rajesh (Hyderabad): early-warning card shows rising strain and an hours-to-urgent lead time; live stream updates every 5 s.
+2. Switch to **Priya (Delhi)**: live smog changes her acute-risk drivers; alert cites real PM2.5.
+3. **What-if**: quit smoking / lower HbA1c / lose weight → models re-run server-side.
+4. **Clinician view**: six-patient panel sorted by urgency.
+5. **FHIR**: load the sample ABDM-style bundle, then export the twin back as FHIR.
+6. **Validation**: ROC and quartiles on 303 real patients, with limitations.
 
-Built following the Vibe Coding Playbook: planning docs first, small testable
-loops, verification before trust, living documentation.
+## Data sources and references
 
----
-
-## Submission checklist (Digital Twin Challenge 2026)
-
-| Required item | Location |
-|---------------|----------|
-| Team details | [Team](#team) |
-| College / Incubator | [Team](#team) |
-| Project title | **VitaTwin** (top of README) |
-| Problem statement | [Problem statement](#problem-statement) |
-| Healthcare use case | [Healthcare use case](#healthcare-use-case) |
-| Technical stack | [Stack](#stack) |
-| AI/ML model details | [AI / risk models](#ai--risk-models) |
-| Demo video (YouTube unlisted) | *Add link after upload* |
-| Open-source license | [LICENSE](LICENSE) (MIT) |
-| Architecture | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) |
-| Presentation | *Optional — see docs/* |
-| Public access | This repository is public |
-
-## Team
-
-| Role | Name |
-|------|------|
-| Lead | Chandra Pavansai |
-| Team | **TechGaint** |
-
-- **Program:** B.Tech 4th Year, Computer Science & Engineering  
-- **College:** CMR Technical Campus  
-- **Challenge:** Digital Twin Challenge 2026 — Reimagining & Reforming Healthcare in India Summit 2026 · Happiest Health  
-
-## Problem statement
-
-India faces a growing cardiometabolic burden (hypertension, type 2 diabetes, early CVD) while care remains largely reactive. Wearable and EHR data exist but are rarely fused into one living, explainable patient model.
-
-**VitaTwin** is a living digital health twin that fuses wearable streams + EHR into explainable cardiometabolic risk (CVD 10-year, diabetes progression, acute stress), prioritised alerts, and patient/clinician recommendations — including a what-if simulator. All data in this PoC is **synthetic**.
-
-## Healthcare use case
-
-- **Patient:** Adults at risk of diabetes / hypertension / early CVD — clear risk signals and guidance.  
-- **Clinician:** Living, factor-level explainable twin view.  
-- **Demo profile:** 52-year-old Indian adult with hypertension, T2DM, hyperlipidaemia.
-
-## AI / risk models
-
-Transparent **rule-based + factor-contribution** models (not black-box deep learning):
-
-- 10-year CVD risk — weighted clinical/lifestyle factors  
-- Diabetes progression — HbA1c, activity, sleep, adherence proxies  
-- Acute cardiac stress — recent HR/HRV and sleep patterns  
-
-Computation is **server-side**; every score returns contributing factors. What-if scenarios re-run the same validated models. Not a medical device and not a diagnosis.
+- D'Agostino et al., *Circulation* 2008;117:743 (Framingham) · Grundy et al., ACC/AHA 2019 · Stratton et al., *BMJ* 2000;321:405 (UKPDS-35) · Mohan et al., *JAPI* 2005;53:759 (IDRS)
+- Brook et al., AHA statement, *Circulation* 2010;121:2331 (air pollution) · Cooney 2010, Cappuccio 2011, Fang 2020 (resting HR, sleep, HRV)
+- Detrano et al., *Am J Cardiol* 1989;64:304 — UCI Heart Disease (CC BY 4.0) · Open-Meteo (CC BY 4.0) · ICMR-INDIAB 2023

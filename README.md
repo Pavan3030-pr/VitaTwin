@@ -34,9 +34,9 @@ Validation (honest): AUC **0.71** (95% CI 0.65–0.76) vs age-only 0.64; disease
 
 ```bash
 npm ci
-npm run dev          # http://localhost:3000  → "Continue with demo twin"
-npm test             # 70+ unit tests
-npm run validate     # re-run the real-data validation
+npm run dev          
+npm test             
+npm run validate     
 npm run build
 ```
 

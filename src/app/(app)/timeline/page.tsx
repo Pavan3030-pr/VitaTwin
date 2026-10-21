@@ -1,6 +1,12 @@
 import { Card, PageHeader, SectionTitle } from "@/components/ui/card";
-import { History } from "lucide-react";
+import { History, Save, Trash2 } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
+import { FormMessage } from "@/components/auth/auth-card";
+import { RiskBadge } from "@/components/ui/risk-badge";
+import { SubmitButton } from "@/components/ui/submit-button";
+import { getViewerSession } from "@/lib/auth";
+import { deleteSnapshot, saveSnapshot } from "@/lib/snapshot-actions";
+import { listSnapshots } from "@/lib/snapshots-data";
 import { getActiveBundle } from "@/lib/active";
 
 export const dynamic = "force-dynamic";
@@ -63,8 +69,15 @@ function buildSnapshots(samples: Awaited<ReturnType<typeof getActiveBundle>>["sa
     });
 }
 
-export default async function TimelinePage() {
-  const { samples, twin } = await getActiveBundle();
+export default async function TimelinePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ notice?: string; error?: string }>;
+}) {
+  const params = await searchParams;
+  const [{ samples, twin }, session] = await Promise.all([getActiveBundle(), getViewerSession()]);
+  const canSave = session.source === "supabase";
+  const saved = canSave ? await listSnapshots() : [];
   const snapshots = buildSnapshots(samples).reverse();
 
   if (snapshots.length === 0) {
@@ -91,6 +104,69 @@ export default async function TimelinePage() {
         title="Twin timeline"
         description="The twin is not a snapshot — it remembers. Each day below is a reconstructed state from the wearable window."
       />
+
+      <section>
+        <SectionTitle hint={canSave ? `${saved.length} saved` : "Email account"}>Saved snapshots</SectionTitle>
+        <FormMessage
+          error={typeof params.error === "string" ? params.error.slice(0, 240) : null}
+          notice={typeof params.notice === "string" ? params.notice.slice(0, 240) : null}
+        />
+        {canSave ? (
+          <div className="space-y-3">
+            <form action={saveSnapshot}>
+              <SubmitButton size="sm" pendingLabel="Saving…">
+                <Save className="h-4 w-4" aria-hidden="true" />
+                Save today&rsquo;s snapshot
+              </SubmitButton>
+            </form>
+            {saved.length === 0 ? (
+              <Card className="border-dashed">
+                <p className="text-sm text-text-secondary">
+                  Nothing saved yet. Save a snapshot to compare how your risk scores change over time.
+                </p>
+              </Card>
+            ) : (
+              <ul className="space-y-2">
+                {saved.map((snap) => (
+                  <li key={snap.id}>
+                    <Card className="flex flex-wrap items-center justify-between gap-3 py-3">
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-text-primary">
+                          {new Date(snap.capturedAt).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}
+                          <span className="ml-2 text-xs font-normal text-text-muted">
+                            {snap.payload.patientName} · early warning {snap.payload.earlyWarning.level}
+                          </span>
+                        </p>
+                        <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-text-secondary">
+                          {snap.payload.scores.map((score) => (
+                            <span key={score.type} className="inline-flex items-center gap-1.5">
+                              {score.label}: <span className="num font-semibold text-text-primary">{score.value}</span>
+                              <RiskBadge category={score.category} />
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <form action={deleteSnapshot}>
+                        <input type="hidden" name="id" value={snap.id} />
+                        <SubmitButton variant="ghost" size="sm" className="text-danger-ink" pendingLabel="Deleting…">
+                          <Trash2 className="h-4 w-4" aria-hidden="true" />
+                          <span className="sr-only sm:not-sr-only">Delete</span>
+                        </SubmitButton>
+                      </form>
+                    </Card>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ) : (
+          <Card className="border-dashed">
+            <p className="text-sm text-text-secondary">
+              Snapshots are saved to your account. Sign in with an email account (not the demo) to save and compare them.
+            </p>
+          </Card>
+        )}
+      </section>
 
       <SectionTitle hint={`${snapshots.length} days`}>Evolution</SectionTitle>
 

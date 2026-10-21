@@ -1,4 +1,5 @@
-import { Stethoscope } from "lucide-react";
+import { Download, Stethoscope } from "lucide-react";
+import { PrintButton } from "@/components/ui/print-button";
 import { Card, PageHeader, SectionTitle } from "@/components/ui/card";
 import { RiskBadge } from "@/components/ui/risk-badge";
 import { getActiveBundle, getCohortBundles } from "@/lib/active";
@@ -41,6 +42,17 @@ export default async function ClinicianPage() {
           </span>
         }
       />
+
+      <div className="flex flex-wrap items-center gap-2 print:hidden">
+        <a
+          href="/api/clinician/export"
+          className="inline-flex h-9 items-center gap-2 rounded-full border border-border-strong bg-bg-card px-4 text-sm font-semibold text-text-primary transition-colors hover:border-primary-strong hover:text-primary-strong"
+        >
+          <Download className="h-4 w-4" aria-hidden="true" />
+          Download panel (CSV)
+        </a>
+        <PrintButton />
+      </div>
 
       <section>
         <SectionTitle hint="Sorted by urgency">Patient panel</SectionTitle>

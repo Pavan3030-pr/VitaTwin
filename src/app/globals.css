@@ -125,3 +125,9 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Clean printed/PDF output: white page, no shadows, keep table rows together. */
+@media print {
+  body { background: #fff !important; }
+  tr, li, section { break-inside: avoid; }
+}

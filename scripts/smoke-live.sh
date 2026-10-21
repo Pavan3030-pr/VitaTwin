@@ -15,6 +15,7 @@ header() { # header-name
 
 for p in / /login /privacy /terms /forgot-password /robots.txt /sitemap.xml /manifest.webmanifest /.well-known/security.txt /api/health; do check "$p" 200; done
 for p in /dashboard /vitals /insights /timeline /profile /clinician /import /validation /account; do check "$p" 307; done
+check /api/clinician/export 401
 check /definitely-not-a-page 404
 for h in content-security-policy x-frame-options x-content-type-options referrer-policy permissions-policy; do header "$h"; done
 if curl -s --max-time 20 "$BASE/api/health" | grep -q '"status":"ok"'; then echo "✓ health payload"; else echo "✗ health payload"; fail=1; fi

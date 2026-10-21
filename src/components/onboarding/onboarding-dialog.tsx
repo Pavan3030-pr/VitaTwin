@@ -49,7 +49,7 @@ export function OnboardingDialog() {
   const last = step === STEPS.length - 1;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-4 sm:items-center" role="presentation">
+    <div className="fixed inset-0 z-50 print:hidden flex items-end justify-center bg-black/40 p-4 sm:items-center" role="presentation">
       <div
         ref={dialogRef}
         role="dialog"

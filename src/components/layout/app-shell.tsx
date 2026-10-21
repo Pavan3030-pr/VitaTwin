@@ -23,7 +23,7 @@ export function AppShell({
   const identity = session.email ?? (session.source === "demo" ? "Demo session" : null);
   return (
     <div className="flex min-h-screen flex-col bg-bg-page">
-      <header className="sticky top-0 z-20 flex items-center justify-between gap-4 border-b border-border bg-bg-card/90 px-4 py-2.5 backdrop-blur sm:px-6">
+      <header className="sticky top-0 z-20 print:hidden flex items-center justify-between gap-4 border-b border-border bg-bg-card/90 px-4 py-2.5 backdrop-blur sm:px-6">
         <div className="flex items-center gap-3">
           <BrandMark />
           <span className="hidden rounded-full bg-bg-wash px-2.5 py-0.5 text-[11px] font-semibold text-primary-deep sm:inline">
@@ -64,7 +64,7 @@ export function AppShell({
       </header>
 
       <div className="flex flex-1">
-        <aside className="hidden w-60 shrink-0 border-r border-border bg-bg-card px-3 py-5 lg:block">
+        <aside className="hidden print:hidden w-60 shrink-0 border-r border-border bg-bg-card px-3 py-5 lg:block">
           <SidebarNav />
           <p className="mt-8 px-3 text-xs leading-relaxed text-text-muted">
             VitaTwin is a proof of concept. It is not a medical device and does not provide a

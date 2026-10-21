@@ -33,6 +33,9 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: __dirname,
   allowedDevOrigins: ["127.0.0.1", "localhost"],
   poweredByHeader: false,
+  // Render <title>/<meta> inside <head> for every client. Next 15.5 otherwise streams
+  // metadata into <body> for browsers, which crawlers and Lighthouse report as missing.
+  htmlLimitedBots: /.*/,
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

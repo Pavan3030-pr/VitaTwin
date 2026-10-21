@@ -13,8 +13,8 @@ function Roc() {
       <rect x="10" y="10" width="180" height="180" fill="none" stroke="#E2E8F0" />
       <line x1="10" y1="190" x2="190" y2="10" stroke="#CBD5E1" strokeDasharray="4 4" />
       <path d={path} fill="none" stroke="#0D9488" strokeWidth="2" />
-      <text x="100" y="198" textAnchor="middle" fontSize="8" fill="#64748B">1 − specificity</text>
-      <text x="4" y="100" fontSize="8" fill="#64748B" transform="rotate(-90 4 100)" textAnchor="middle">sensitivity</text>
+      <text x="100" y="198" textAnchor="middle" fontSize="8" fill="#586679">1 − specificity</text>
+      <text x="4" y="100" fontSize="8" fill="#586679" transform="rotate(-90 4 100)" textAnchor="middle">sensitivity</text>
     </svg>
   );
 }

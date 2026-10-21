@@ -62,12 +62,12 @@ export function VitalsChart({ samples, metric, label, unit }: VitalsChartProps) 
           <CartesianGrid stroke="#E2E8F0" strokeDasharray="3 3" vertical={false} />
           <XAxis
             dataKey="day"
-            tick={{ fill: "#64748B", fontSize: 11 }}
+            tick={{ fill: "#586679", fontSize: 11 }}
             axisLine={false}
             tickLine={false}
           />
           <YAxis
-            tick={{ fill: "#64748B", fontSize: 11 }}
+            tick={{ fill: "#586679", fontSize: 11 }}
             axisLine={false}
             tickLine={false}
             width={52}

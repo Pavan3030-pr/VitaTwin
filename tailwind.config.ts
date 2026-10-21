@@ -54,7 +54,7 @@ export default {
         text: {
           primary: "#0F172A",
           secondary: "#475569",
-          muted: "#64748B",
+          muted: "#586679",
         },
         border: {
           DEFAULT: "#E2E8F0",

@@ -1,16 +1,19 @@
 import Link from "next/link";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
 import { BrandMark } from "@/components/ui/brand-mark";
-import { Button } from "@/components/ui/button";
 import { TwinFigure } from "@/components/twin/twin-figure";
-import { signInDemo, submitEmailAuth } from "@/lib/auth-actions";
+import { signInDemo, submitEmailAuth, resendVerification } from "@/lib/auth-actions";
+import { SubmitButton } from "@/components/ui/submit-button";
+import { FormMessage } from "@/components/auth/auth-card";
+import { LegalLinks } from "@/components/legal/site-footer";
+import { safeNextPath } from "@/lib/validation";
 import { isSupabaseConfigured } from "@/lib/auth";
 import { generateDemoBundle } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
 interface LoginPageProps {
-  searchParams: Promise<{ next?: string; error?: string }>;
+  searchParams: Promise<{ next?: string; error?: string; notice?: string; resend?: string }>;
 }
 
 const INPUT =
@@ -18,11 +21,10 @@ const INPUT =
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const params = await searchParams;
-  const nextPath =
-    typeof params.next === "string" && params.next.startsWith("/") && !params.next.startsWith("//")
-      ? params.next
-      : "/dashboard";
+  const nextPath = safeNextPath(params.next);
   const error = typeof params.error === "string" ? params.error.slice(0, 240) : null;
+  const notice = typeof params.notice === "string" ? params.notice.slice(0, 240) : null;
+  const showResend = params.resend === "1";
   const supabaseReady = isSupabaseConfigured();
   const { vitals, patient } = generateDemoBundle();
   const hba1c = patient.recentLabs.find((lab) => lab.name === "HbA1c")?.value ?? null;
@@ -72,9 +74,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
             <form action={signInDemo} className="mt-7">
               <input type="hidden" name="next" value={nextPath} />
-              <Button type="submit" size="lg" className="w-full">
+              <SubmitButton size="lg" className="w-full" pendingLabel="Opening demo…">
                 Continue with demo twin
-              </Button>
+              </SubmitButton>
             </form>
 
             <div className="my-7 flex items-center gap-3 text-sm text-text-muted">
@@ -83,14 +85,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               <span className="h-px flex-1 bg-border" />
             </div>
 
-            {error ? (
-              <p
-                role="alert"
-                className="mb-4 rounded-lg border border-warning/40 bg-warning-soft px-3.5 py-2.5 text-sm text-warning-ink"
-              >
-                {error}
-              </p>
-            ) : null}
+            <FormMessage error={error} notice={notice} />
 
             <form action={submitEmailAuth} className="space-y-4" aria-describedby="supabase-note">
               <input type="hidden" name="next" value={nextPath} />
@@ -111,14 +106,20 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 />
               </div>
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-text-primary">
-                  Password
-                </label>
+                <div className="flex items-baseline justify-between">
+                  <label htmlFor="password" className="block text-sm font-medium text-text-primary">
+                    Password
+                  </label>
+                  <Link href="/forgot-password" className="text-xs font-medium text-primary-strong hover:underline">
+                    Forgot password?
+                  </Link>
+                </div>
                 <input
                   id="password"
                   name="password"
                   type="password"
                   autoComplete="current-password"
+                  required
                   minLength={8}
                   maxLength={128}
                   placeholder="At least 8 characters"
@@ -127,27 +128,42 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 />
               </div>
               <div className="flex flex-col gap-2 sm:flex-row">
-                <Button
-                  type="submit"
+                <SubmitButton
                   name="intent"
                   value="signin"
                   variant="secondary"
                   className="w-full"
                   disabled={!supabaseReady}
+                  pendingLabel="Signing in…"
                 >
                   Sign in
-                </Button>
-                <Button
-                  type="submit"
+                </SubmitButton>
+                <SubmitButton
                   name="intent"
                   value="signup"
                   variant="ghost"
                   className="w-full"
                   disabled={!supabaseReady}
+                  pendingLabel="Creating…"
                 >
                   Create account
-                </Button>
+                </SubmitButton>
               </div>
+              {showResend ? (
+                <SubmitButton
+                  formAction={resendVerification}
+                  variant="secondary"
+                  size="sm"
+                  disabled={!supabaseReady}
+                  pendingLabel="Sending…"
+                >
+                  Resend confirmation email
+                </SubmitButton>
+              ) : null}
+              <p className="text-xs text-text-muted">
+                By creating an account you agree to the <Link href="/terms" className="underline hover:text-primary-strong">Terms</Link> and{" "}
+                <Link href="/privacy" className="underline hover:text-primary-strong">Privacy policy</Link>.
+              </p>
               <p id="supabase-note" className="text-xs leading-relaxed text-text-muted">
                 {supabaseReady
                   ? "Backed by Supabase Auth. Passwords never touch our servers."
@@ -164,6 +180,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             </p>
           </div>
         </main>
+        <footer className="px-5 pb-6 text-text-muted sm:px-8">
+          <LegalLinks className="justify-center" />
+        </footer>
       </div>
     </div>
   );

@@ -1,7 +1,10 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
 import { BrandMark } from "@/components/ui/brand-mark";
 import { MobileNav, SidebarNav } from "./sidebar-nav";
+import { LegalLinks } from "@/components/legal/site-footer";
+import { SubmitButton } from "@/components/ui/submit-button";
 import { signOut } from "@/lib/auth-actions";
 import type { SessionSource } from "@/lib/auth";
 
@@ -41,13 +44,21 @@ export function AppShell({
               {identity}
             </span>
           ) : null}
+          <Link
+            href="/account"
+            className="rounded-full px-3 py-1.5 text-sm font-medium text-text-secondary transition-colors hover:text-primary-strong"
+          >
+            Account
+          </Link>
           <form action={signOut}>
-            <button
-              type="submit"
-              className="rounded-full border border-border-strong px-3.5 py-1.5 text-sm font-medium text-text-secondary transition-colors hover:border-primary-strong hover:text-primary-strong"
+            <SubmitButton
+              variant="secondary"
+              size="sm"
+              className="h-auto px-3.5 py-1.5 font-medium text-text-secondary"
+              pendingLabel="Signing out…"
             >
               Sign out
-            </button>
+            </SubmitButton>
           </form>
         </div>
       </header>
@@ -59,6 +70,7 @@ export function AppShell({
             VitaTwin is a proof of concept. It is not a medical device and does not provide a
             diagnosis.
           </p>
+          <LegalLinks className="mt-4 px-3 text-text-muted" />
         </aside>
 
         <main className="min-w-0 flex-1 px-4 pb-24 pt-6 sm:px-6 lg:px-10 lg:pb-16">

@@ -1,30 +1,31 @@
 "use server";
 
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { DEMO_COOKIE, isSupabaseConfigured } from "./auth";
 import { createSupabaseServerClient } from "./supabase/server";
 import { checkRateLimit } from "./rate-limit";
+import { getClientKey, getOrigin } from "./client-key";
+import { friendlyAuthError } from "./auth-errors";
+import { safeNextPath, validateEmail, validatePassword, validatePasswordPair } from "./validation";
 
-/** Only same-origin relative paths are accepted as post-login destinations. */
-function safeNext(value: FormDataEntryValue | null | undefined): string {
-  if (typeof value !== "string" || !value.startsWith("/") || value.startsWith("//")) {
-    return "/dashboard";
-  }
-  return value;
+function loginUrl(opts: { error?: string; notice?: string; next: string; resend?: boolean }): string {
+  const q = new URLSearchParams();
+  if (opts.error) q.set("error", opts.error);
+  if (opts.notice) q.set("notice", opts.notice);
+  if (opts.resend) q.set("resend", "1");
+  q.set("next", opts.next);
+  return `/login?${q.toString()}`;
 }
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-/** Best-effort client key for rate limiting (first forwarded address). */
-async function clientKey(): Promise<string> {
-  const h = await headers();
-  return h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "local";
+function formUrl(path: string, opts: { error?: string; notice?: string }): string {
+  const q = new URLSearchParams();
+  if (opts.error) q.set("error", opts.error);
+  if (opts.notice) q.set("notice", opts.notice);
+  return `${path}?${q.toString()}`;
 }
 
-function loginErrorUrl(message: string, next: string): string {
-  return `/login?error=${encodeURIComponent(message)}&next=${encodeURIComponent(next)}`;
-}
+const NOT_CONFIGURED = "Email sign-in is not configured on this deployment. Use the demo twin.";
 
 /**
  * Starts a synthetic demo session. No real patient data is involved.
@@ -40,74 +41,153 @@ export async function signInDemo(formData?: FormData): Promise<void> {
     maxAge: 60 * 60 * 12, // 12 hours
   });
 
-  const next = formData?.get("next");
-  redirect(safeNext(next));
+  redirect(safeNextPath(formData?.get("next")));
 }
 
 /**
  * Email/password sign-in or sign-up against Supabase.
  * The form's submit button sets `intent` to "signin" or "signup".
- * Errors are surfaced to the login page through a query parameter, so the
- * form works without client-side JavaScript.
+ * Errors and notices travel through query parameters, so the form works
+ * without client-side JavaScript.
  */
 export async function submitEmailAuth(formData: FormData): Promise<void> {
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   const intent = formData.get("intent") === "signup" ? "signup" : "signin";
-  const next = safeNext(formData.get("next"));
+  const next = safeNextPath(formData.get("next"));
 
-  if (!isSupabaseConfigured()) {
-    redirect(
-      loginErrorUrl(
-        "Email sign-in is not configured on this deployment. Use the demo twin.",
-        next,
-      ),
-    );
-  }
+  if (!isSupabaseConfigured()) redirect(loginUrl({ error: NOT_CONFIGURED, next }));
 
-  const limit = checkRateLimit(`auth:${await clientKey()}`, 8, 10 * 60_000);
+  const limit = checkRateLimit(`auth:${await getClientKey()}`, 8, 10 * 60_000);
   if (!limit.allowed) {
     redirect(
-      loginErrorUrl(
-        `Too many attempts. Try again in ${Math.ceil(limit.retryAfterSeconds / 60)} minute(s).`,
+      loginUrl({
+        error: `Too many attempts. Try again in ${Math.ceil(limit.retryAfterSeconds / 60)} minute(s).`,
         next,
-      ),
+      }),
     );
   }
 
-  if (!email || !password) {
-    redirect(loginErrorUrl("Enter both an email address and a password.", next));
-  }
+  const emailProblem = validateEmail(email);
+  if (emailProblem) redirect(loginUrl({ error: emailProblem, next }));
 
-  if (email.length > 254 || !EMAIL_PATTERN.test(email)) {
-    redirect(loginErrorUrl("Enter a valid email address.", next));
-  }
-
-  if (password.length < 8 || password.length > 128) {
-    redirect(loginErrorUrl("Passwords must be between 8 and 128 characters.", next));
-  }
+  // Strength rules apply to new passwords only; existing users may predate them.
+  const passwordProblem =
+    intent === "signup"
+      ? validatePassword(password)
+      : password.length === 0 || password.length > 128
+        ? "Enter your password."
+        : null;
+  if (passwordProblem) redirect(loginUrl({ error: passwordProblem, next }));
 
   const supabase = await createSupabaseServerClient();
 
   if (intent === "signup") {
-    const { error } = await supabase.auth.signUp({ email, password });
-    if (error) {
-      redirect(loginErrorUrl(error.message, next));
-    }
+    const origin = await getOrigin();
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next)}` },
+    });
+    if (error) redirect(loginUrl({ error: friendlyAuthError(error.message).message, next }));
+    // Projects with confirmation switched off return a session straight away.
+    if (data.session) redirect(next);
     redirect(
-      loginErrorUrl(
-        "Account created. Check your inbox to confirm the address, then sign in.",
+      loginUrl({
+        notice: "Account created. We sent a confirmation link to your email. Open it, then sign in.",
         next,
-      ),
+      }),
     );
   }
 
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) {
-    redirect(loginErrorUrl(error.message, next));
+    const friendly = friendlyAuthError(error.message);
+    redirect(loginUrl({ error: friendly.message, next, resend: friendly.canResend }));
   }
 
   redirect(next);
+}
+
+/** Sends a fresh confirmation email (used from the login form). */
+export async function resendVerification(formData: FormData): Promise<void> {
+  const email = String(formData.get("email") ?? "").trim();
+  const next = safeNextPath(formData.get("next"));
+
+  if (!isSupabaseConfigured()) redirect(loginUrl({ error: NOT_CONFIGURED, next }));
+
+  const limit = checkRateLimit(`resend:${await getClientKey()}`, 3, 15 * 60_000);
+  if (!limit.allowed) {
+    redirect(loginUrl({ error: "Too many requests. Please wait a few minutes and try again.", next }));
+  }
+  const emailProblem = validateEmail(email);
+  if (emailProblem) redirect(loginUrl({ error: emailProblem, next, resend: true }));
+
+  const supabase = await createSupabaseServerClient();
+  const origin = await getOrigin();
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email,
+    options: { emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next)}` },
+  });
+  if (error) redirect(loginUrl({ error: friendlyAuthError(error.message).message, next }));
+
+  redirect(loginUrl({ notice: "If that address has an unconfirmed account, a new link is on its way.", next }));
+}
+
+/** Step 1 of password reset: email a recovery link. Never reveals if the account exists. */
+export async function requestPasswordReset(formData: FormData): Promise<void> {
+  const email = String(formData.get("email") ?? "").trim();
+
+  if (!isSupabaseConfigured()) redirect(formUrl("/forgot-password", { error: NOT_CONFIGURED }));
+
+  const limit = checkRateLimit(`reset:${await getClientKey()}`, 3, 15 * 60_000);
+  if (!limit.allowed) {
+    redirect(formUrl("/forgot-password", { error: "Too many requests. Please wait a few minutes and try again." }));
+  }
+  const emailProblem = validateEmail(email);
+  if (emailProblem) redirect(formUrl("/forgot-password", { error: emailProblem }));
+
+  const supabase = await createSupabaseServerClient();
+  const origin = await getOrigin();
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${origin}/auth/callback?next=${encodeURIComponent("/reset-password")}`,
+  });
+  // Only surface infrastructure problems; "no such user" must look identical to success.
+  if (error && /rate limit|too many|security purposes/i.test(error.message)) {
+    redirect(formUrl("/forgot-password", { error: friendlyAuthError(error.message).message }));
+  }
+
+  redirect(
+    formUrl("/forgot-password", {
+      notice: "If an account exists for that email, a reset link is on its way. It expires in about an hour.",
+    }),
+  );
+}
+
+/** Step 2 of password reset: the recovery link has signed the user in; set the new password. */
+export async function updatePassword(formData: FormData): Promise<void> {
+  const password = String(formData.get("password") ?? "");
+  const confirm = String(formData.get("confirm") ?? "");
+
+  if (!isSupabaseConfigured()) redirect(formUrl("/reset-password", { error: NOT_CONFIGURED }));
+
+  const problem = validatePasswordPair(password, confirm);
+  if (problem) redirect(formUrl("/reset-password", { error: problem }));
+
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    redirect(formUrl("/forgot-password", { error: "That reset link has expired. Request a new one." }));
+  }
+
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) redirect(formUrl("/reset-password", { error: friendlyAuthError(error.message).message }));
+
+  await supabase.auth.signOut();
+  redirect(loginUrl({ notice: "Password updated. Sign in with your new password.", next: "/dashboard" }));
 }
 
 /** Clears both the Supabase session and the demo cookie. */

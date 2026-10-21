@@ -1,6 +1,8 @@
 "use server";
 
 import { getViewerSession } from "./auth";
+import { checkRateLimit } from "./rate-limit";
+import { getClientKey } from "./client-key";
 import { importWearableCsv, type WearableImportResult } from "@/services/wearable-import";
 
 export interface WearableActionState {
@@ -16,6 +18,10 @@ export async function analyzeWearable(
 ): Promise<WearableActionState> {
   const session = await getViewerSession();
   if (session.source === "none") return { result: null, error: "Please sign in." };
+
+  if (!checkRateLimit(`wearable:${await getClientKey()}`, 20, 60_000).allowed) {
+    return { result: null, error: "Too many imports. Please wait a minute and try again." };
+  }
 
   const file = formData.get("file");
   let text = String(formData.get("csv") ?? "");

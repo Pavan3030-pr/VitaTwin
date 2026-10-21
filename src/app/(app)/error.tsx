@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { AlertTriangle } from "lucide-react";
-import { reportError } from "@/lib/monitoring";
+import { reportClientError } from "@/lib/client-monitoring";
 
 /**
  * Route-level error boundary. Shows a calm, generic message and a retry —
@@ -16,8 +16,8 @@ export default function AppError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Only a correlation digest leaves the component, never health data.
-    reportError({ scope: "app-route", digest: error.digest });
+    // A short message and digest are sent; the server scrubs emails, tokens and numbers.
+    reportClientError("app-route", error, error.digest);
   }, [error]);
 
   return (

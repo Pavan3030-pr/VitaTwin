@@ -5,6 +5,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { RiskBadge } from "@/components/ui/risk-badge";
 import { TwinFigure } from "@/components/twin/twin-figure";
 import { RiskRing } from "@/components/twin/risk-ring";
+import { LegalLinks } from "@/components/legal/site-footer";
 import { generateDemoBundle } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
@@ -305,8 +306,11 @@ export default function LandingPage() {
       </main>
 
       <footer className="border-t border-border px-5 py-6 text-center text-xs text-text-muted sm:px-8">
-        VitaTwin · Digital Twin Challenge 2026 · Happiest Health · Synthetic data only · Not a
-        medical device
+        <p>
+          VitaTwin · Digital Twin Challenge 2026 · Happiest Health · Synthetic data only · Not a
+          medical device
+        </p>
+        <LegalLinks className="mt-2 justify-center" />
       </footer>
     </div>
   );

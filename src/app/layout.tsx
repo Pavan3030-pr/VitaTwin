@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Figtree } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { ErrorListener } from "@/components/system/error-listener";
 import "./globals.css";
 
 const display = Bricolage_Grotesque({
@@ -24,12 +26,19 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: "#FAFBFC",
   colorScheme: "light",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-bg-page">{children}</body>
+      <body className="min-h-full flex flex-col bg-bg-page">
+        {children}
+        <ErrorListener />
+        <Analytics />
+      </body>
     </html>
   );
 }

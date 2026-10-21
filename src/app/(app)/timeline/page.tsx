@@ -1,4 +1,6 @@
 import { Card, PageHeader, SectionTitle } from "@/components/ui/card";
+import { History } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
 import { getActiveBundle } from "@/lib/active";
 
 export const dynamic = "force-dynamic";
@@ -64,6 +66,24 @@ function buildSnapshots(samples: Awaited<ReturnType<typeof getActiveBundle>>["sa
 export default async function TimelinePage() {
   const { samples, twin } = await getActiveBundle();
   const snapshots = buildSnapshots(samples).reverse();
+
+  if (snapshots.length === 0) {
+    return (
+      <div className="space-y-7">
+        <PageHeader title="Twin timeline" description="The twin remembers each day as it unfolds." />
+        <EmptyState
+          icon={History}
+          title="No history yet"
+          description="Once wearable data is connected, each day will appear here as a snapshot of your twin."
+          action={
+            <a href="/import" className="inline-flex h-10 items-center rounded-full bg-primary-strong px-5 text-sm font-semibold text-white hover:bg-primary-hover">
+              Connect your data
+            </a>
+          }
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-7">

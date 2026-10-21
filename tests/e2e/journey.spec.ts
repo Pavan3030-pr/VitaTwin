@@ -7,6 +7,11 @@ import { expect, test } from "@playwright/test";
  * Plus the authorization journey (§3): protected routes require a session.
  */
 
+// Most journeys start after the welcome tour; the onboarding test below clears this.
+test.beforeEach(async ({ context, baseURL }) => {
+  await context.addCookies([{ name: "vitatwin_onboarded", value: "1", url: baseURL! }]);
+});
+
 test.describe("VitaTwin main journey", () => {
   test("landing page states the synthetic-data notice", async ({ page }) => {
     await page.goto("/");
@@ -241,4 +246,57 @@ test.describe("Responsive", () => {
       expect(overflow).toBeLessThanOrEqual(2);
     });
   }
+});
+
+test.describe("Onboarding, legal pages and account", () => {
+  test("first visit shows the welcome tour once", async ({ page, context }) => {
+    await context.clearCookies();
+    await page.goto("/login");
+    await page.getByRole("button", { name: /Continue with demo twin/i }).click();
+    await page.waitForURL("**/dashboard");
+
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole("button", { name: "Next" }).click();
+    await dialog.getByRole("button", { name: "Next" }).click();
+    await dialog.getByRole("button", { name: /Start exploring/i }).click();
+    await expect(dialog).toBeHidden();
+
+    await page.reload();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+  });
+
+  test("privacy and terms pages are public", async ({ page }) => {
+    await page.goto("/privacy");
+    await expect(page.getByRole("heading", { name: /Privacy policy/i })).toBeVisible();
+    await page.goto("/terms");
+    await expect(page.getByRole("heading", { name: /Terms of use/i })).toBeVisible();
+  });
+
+  test("password reset page explains itself", async ({ page }) => {
+    await page.goto("/forgot-password");
+    await expect(page.getByRole("heading", { name: /Reset your password/i })).toBeVisible();
+  });
+
+  test("ending a demo session requires typing DELETE", async ({ page }) => {
+    await page.goto("/login");
+    await page.getByRole("button", { name: /Continue with demo twin/i }).click();
+    await page.waitForURL("**/dashboard");
+
+    await page.goto("/account");
+    await page.getByRole("button", { name: /End demo session/i }).click();
+    const confirmButton = page.getByRole("button", { name: /End session/i });
+    await expect(confirmButton).toBeDisabled();
+    await page.getByLabel(/Type DELETE/i).fill("DELETE");
+    await confirmButton.click();
+    await page.waitForURL(/\/login/);
+
+    await page.goto("/dashboard");
+    await expect(page).toHaveURL(/\/login/);
+  });
+
+  test("unknown routes show the custom 404", async ({ page }) => {
+    await page.goto("/definitely-not-a-page");
+    await expect(page.getByText(/not part of the twin/i)).toBeVisible();
+  });
 });

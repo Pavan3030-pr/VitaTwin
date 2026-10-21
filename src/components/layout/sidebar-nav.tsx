@@ -77,15 +77,15 @@ export function MobileNav() {
       className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-bg-card/95 px-1 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
       aria-label="Twin sections (mobile)"
     >
-      <ul className="grid grid-cols-8">
+      <ul className="flex overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {NAV_ITEMS.map(({ href, short, icon: Icon }) => {
           const active = isActive(href);
           return (
-            <li key={href}>
+            <li key={href} className="min-w-[4.5rem] flex-1">
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`flex flex-col items-center gap-0.5 rounded-md py-2 text-[9.5px] font-medium ${
+                className={`flex min-h-[48px] flex-col items-center justify-center gap-0.5 rounded-md py-2 text-[11px] font-medium ${
                   active ? "text-primary-strong" : "text-text-secondary"
                 }`}
               >

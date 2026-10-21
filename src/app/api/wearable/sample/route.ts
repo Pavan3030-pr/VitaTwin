@@ -1,6 +1,9 @@
 import { sampleWearableCsv } from "@/services/wearable-import";
+import { guardRate } from "@/lib/request-guard";
 
-export async function GET() {
+export async function GET(request: Request) {
+  const blocked = guardRate(request, "wearable-sample", 30, 60_000);
+  if (blocked) return blocked;
   const body = sampleWearableCsv();
   return new Response(body, {
     headers: {

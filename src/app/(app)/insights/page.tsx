@@ -1,4 +1,5 @@
-import { Lightbulb, ShieldAlert, Sparkles } from "lucide-react";
+import { Lightbulb, ShieldAlert, ShieldCheck, Sparkles } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Card, PageHeader, SectionTitle } from "@/components/ui/card";
 import { RiskBadge, SeverityBadge } from "@/components/ui/risk-badge";
 import { getActiveBundle } from "@/lib/active";
@@ -86,9 +87,11 @@ export default async function InsightsPage() {
         <SectionTitle hint={`${twin.alerts.length} open`}>Alerts</SectionTitle>
         <div className="space-y-3">
           {twin.alerts.length === 0 && (
-            <Card>
-              <p className="text-sm text-text-secondary">No active alerts.</p>
-            </Card>
+            <EmptyState
+              icon={ShieldCheck}
+              title="No active alerts"
+              description="The twin is stable right now. New alerts appear here, with a plain-language next step."
+            />
           )}
           {twin.alerts.map((alert) => (
             <Card key={alert.id}>

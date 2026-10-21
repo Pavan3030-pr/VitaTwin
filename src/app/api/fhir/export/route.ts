@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 /** FHIR R4 Bundle (Patient, Observation, RiskAssessment) for the active twin. */
 export async function GET(request: Request) {
-  const blocked = guardRate(request, "fhir-export", 10, 60_000);
+  const blocked = await guardRate(request, "fhir-export", 10, 60_000);
   if (blocked) return blocked;
   const session = await getViewerSession();
   if (session.source === "none") return NextResponse.json({ error: "unauthorized" }, { status: 401 });

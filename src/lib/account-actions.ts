@@ -6,7 +6,7 @@ import { DEMO_COOKIE, getViewerSession, isSupabaseConfigured } from "./auth";
 import { PATIENT_COOKIE } from "./active";
 import { ONBOARDING_COOKIE } from "./onboarding";
 import { createSupabaseServerClient } from "./supabase/server";
-import { checkRateLimit } from "./rate-limit";
+import { checkRateLimitShared } from "./rate-limit-shared";
 import { getClientKey } from "./client-key";
 
 const CONFIRM_WORD = "DELETE";
@@ -26,7 +26,7 @@ export async function deleteAccount(formData: FormData): Promise<void> {
   const session = await getViewerSession();
   if (session.source === "none") redirect("/login");
 
-  const limit = checkRateLimit(`delete:${await getClientKey()}`, 5, 15 * 60_000);
+  const limit = await checkRateLimitShared(`delete:${await getClientKey()}`, 5, 15 * 60_000);
   if (!limit.allowed) redirect(accountUrl("Too many attempts. Please wait a few minutes."));
 
   if (String(formData.get("confirm") ?? "").trim() !== CONFIRM_WORD) {

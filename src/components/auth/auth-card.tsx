@@ -29,7 +29,7 @@ export function AuthCard({
           Back to sign in
         </Link>
       </header>
-      <main className="flex flex-1 items-start justify-center px-5 pb-16 pt-10 sm:items-center sm:pt-4">
+      <main id="main-content" className="flex flex-1 items-start justify-center px-5 pb-16 pt-10 sm:items-center sm:pt-4">
         <div className="w-full max-w-md">
           <h1 className="font-display text-3xl font-semibold tracking-tight text-text-primary">{title}</h1>
           <p className="mt-1.5 text-[15px] text-text-secondary">{description}</p>

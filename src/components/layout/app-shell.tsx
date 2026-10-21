@@ -73,7 +73,7 @@ export function AppShell({
           <LegalLinks className="mt-4 px-3 text-text-muted" />
         </aside>
 
-        <main className="min-w-0 flex-1 px-4 pb-24 pt-6 sm:px-6 lg:px-10 lg:pb-16">
+        <main id="main-content" tabIndex={-1} className="min-w-0 flex-1 outline-none px-4 pb-24 pt-6 sm:px-6 lg:px-10 lg:pb-16">
           <div className="mx-auto w-full max-w-6xl">{children}</div>
         </main>
       </div>

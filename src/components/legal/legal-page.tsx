@@ -20,7 +20,7 @@ export function LegalPage({ title, children }: { title: string; children: ReactN
           Back
         </Link>
       </header>
-      <main className="mx-auto w-full max-w-2xl flex-1 px-5 pb-16 pt-4 sm:px-8">
+      <main id="main-content" className="mx-auto w-full max-w-2xl flex-1 px-5 pb-16 pt-4 sm:px-8">
         <h1 className="font-display text-3xl font-semibold tracking-tight text-text-primary">{title}</h1>
         <p className="mt-1 text-sm text-text-muted">Last updated {LEGAL_UPDATED}</p>
         <div className="mt-8 space-y-7 text-[15px] leading-relaxed text-text-secondary [&_h2]:mb-2 [&_h2]:font-display [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-text-primary [&_li]:ml-5 [&_li]:list-disc [&_ul]:space-y-1">

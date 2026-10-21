@@ -1,7 +1,7 @@
 "use server";
 
 import { getViewerSession } from "./auth";
-import { checkRateLimit } from "./rate-limit";
+import { checkRateLimitShared } from "./rate-limit-shared";
 import { getClientKey } from "./client-key";
 import { importWearableCsv, type WearableImportResult } from "@/services/wearable-import";
 
@@ -19,7 +19,8 @@ export async function analyzeWearable(
   const session = await getViewerSession();
   if (session.source === "none") return { result: null, error: "Please sign in." };
 
-  if (!checkRateLimit(`wearable:${await getClientKey()}`, 20, 60_000).allowed) {
+  const limit = await checkRateLimitShared(`wearable:${await getClientKey()}`, 20, 60_000);
+  if (!limit.allowed) {
     return { result: null, error: "Too many imports. Please wait a minute and try again." };
   }
 

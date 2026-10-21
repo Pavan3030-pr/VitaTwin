@@ -24,3 +24,17 @@
 
 Known limits: rate limiting is in-memory per serverless instance (swap for Upstash/Redis
 before real traffic); the legal pages are sensible templates, not legal advice.
+
+## Round 2 hardening
+
+| Area | Where |
+|------|-------|
+| Patched Next.js (security advisories) | `package.json` → `next@15.5.28` |
+| Shared rate limiting (Redis) | `src/lib/rate-limit-shared.ts`, `UPSTASH_*` env vars |
+| Lighter vitals page | `src/components/charts/vitals-chart-lazy.tsx` |
+| Accessibility | skip link, reduced-motion CSS, landmarks |
+| SEO / install | `robots.ts`, `sitemap.ts`, `manifest.ts`, Open Graph |
+| Vulnerability reporting | `public/.well-known/security.txt` |
+| Supply chain | `.github/dependabot.yml`, `.github/workflows/codeql.yml` |
+| E2E in CI | `.github/workflows/e2e.yml` |
+| Post-deploy checks | `npm run smoke -- <url>`, `npm run lighthouse -- <url>` |

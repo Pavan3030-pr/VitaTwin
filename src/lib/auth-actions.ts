@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { DEMO_COOKIE, isSupabaseConfigured } from "./auth";
 import { createSupabaseServerClient } from "./supabase/server";
-import { checkRateLimit } from "./rate-limit";
+import { checkRateLimitShared } from "./rate-limit-shared";
 import { getClientKey, getOrigin } from "./client-key";
 import { friendlyAuthError } from "./auth-errors";
 import { safeNextPath, validateEmail, validatePassword, validatePasswordPair } from "./validation";
@@ -58,7 +58,7 @@ export async function submitEmailAuth(formData: FormData): Promise<void> {
 
   if (!isSupabaseConfigured()) redirect(loginUrl({ error: NOT_CONFIGURED, next }));
 
-  const limit = checkRateLimit(`auth:${await getClientKey()}`, 8, 10 * 60_000);
+  const limit = await checkRateLimitShared(`auth:${await getClientKey()}`, 8, 10 * 60_000);
   if (!limit.allowed) {
     redirect(
       loginUrl({
@@ -116,7 +116,7 @@ export async function resendVerification(formData: FormData): Promise<void> {
 
   if (!isSupabaseConfigured()) redirect(loginUrl({ error: NOT_CONFIGURED, next }));
 
-  const limit = checkRateLimit(`resend:${await getClientKey()}`, 3, 15 * 60_000);
+  const limit = await checkRateLimitShared(`resend:${await getClientKey()}`, 3, 15 * 60_000);
   if (!limit.allowed) {
     redirect(loginUrl({ error: "Too many requests. Please wait a few minutes and try again.", next }));
   }
@@ -141,7 +141,7 @@ export async function requestPasswordReset(formData: FormData): Promise<void> {
 
   if (!isSupabaseConfigured()) redirect(formUrl("/forgot-password", { error: NOT_CONFIGURED }));
 
-  const limit = checkRateLimit(`reset:${await getClientKey()}`, 3, 15 * 60_000);
+  const limit = await checkRateLimitShared(`reset:${await getClientKey()}`, 3, 15 * 60_000);
   if (!limit.allowed) {
     redirect(formUrl("/forgot-password", { error: "Too many requests. Please wait a few minutes and try again." }));
   }

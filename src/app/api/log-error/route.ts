@@ -8,7 +8,7 @@ const MAX_BODY = 2_000;
 
 /** Receives browser-side error reports. Tiny, rate-limited, scrubbed. */
 export async function POST(request: Request) {
-  const blocked = guardRate(request, "log-error", 20, 60_000);
+  const blocked = await guardRate(request, "log-error", 20, 60_000);
   if (blocked) return blocked;
 
   const raw = await request.text();

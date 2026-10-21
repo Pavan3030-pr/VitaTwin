@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 /** Latest simulated wearable tick plus a short backfill, for the live panel. */
 export async function GET(request: Request) {
-  const blocked = guardRate(request, "twin-live", 60, 60_000);
+  const blocked = await guardRate(request, "twin-live", 60, 60_000);
   if (blocked) return blocked;
   const session = await getViewerSession();
   if (session.source === "none") return NextResponse.json({ error: "unauthorized" }, { status: 401 });

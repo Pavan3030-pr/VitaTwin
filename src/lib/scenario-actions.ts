@@ -2,7 +2,7 @@
 
 import { getViewerSession } from "./auth";
 import { getActiveBundle } from "./active";
-import { checkRateLimit } from "./rate-limit";
+import { checkRateLimitShared } from "./rate-limit-shared";
 import { getClientKey } from "./client-key";
 import { simulateScenario } from "@/services/scenario";
 import type { ScenarioResult } from "@/types/scenario";
@@ -15,7 +15,7 @@ import type { ScenarioResult } from "@/types/scenario";
 export async function runScenario(raw: unknown): Promise<ScenarioResult | null> {
   const session = await getViewerSession();
   if (session.source === "none") return null;
-  if (!checkRateLimit(`scenario:${await getClientKey()}`, 120, 60_000).allowed) return null;
+  if (!(await checkRateLimitShared(`scenario:${await getClientKey()}`, 120, 60_000)).allowed) return null;
 
   const { riskInput, vitals } = await getActiveBundle();
   return simulateScenario(

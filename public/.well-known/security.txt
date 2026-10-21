@@ -1,0 +1,4 @@
+Contact: https://github.com/Pavan3030-pr/VitaTwin/security/advisories/new
+Expires: 2027-10-21T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://vita-twin-ten.vercel.app/.well-known/security.txt

@@ -63,7 +63,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           </Link>
         </header>
 
-        <main className="flex flex-1 items-center justify-center px-5 pb-16 pt-4">
+        <main id="main-content" className="flex flex-1 items-center justify-center px-5 pb-16 pt-4">
           <div className="w-full max-w-md">
             <h1 className="font-display text-3xl font-semibold tracking-tight text-text-primary">
               Sign in to VitaTwin

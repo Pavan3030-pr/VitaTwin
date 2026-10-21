@@ -1,6 +1,6 @@
 import { Activity, Droplets, Footprints, HeartPulse, Moon, Wind } from "lucide-react";
 import { Card, CardHeader, PageHeader, SectionTitle } from "@/components/ui/card";
-import { VitalsChart } from "@/components/charts/vitals-chart";
+import { VitalsChart } from "@/components/charts/vitals-chart-lazy";
 import { getActiveBundle } from "@/lib/active";
 
 export const dynamic = "force-dynamic";

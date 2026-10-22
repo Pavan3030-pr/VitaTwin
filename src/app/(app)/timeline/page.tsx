@@ -224,3 +224,5 @@ export default async function TimelinePage({
     </div>
   );
 }
+
+export const metadata = { title: "Timeline" };

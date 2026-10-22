@@ -212,3 +212,5 @@ export default function ValidationPage() {
     </div>
   );
 }
+
+export const metadata = { title: "Validation" };

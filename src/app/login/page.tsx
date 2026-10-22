@@ -166,7 +166,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               </p>
               <p id="supabase-note" className="text-xs leading-relaxed text-text-muted">
                 {supabaseReady
-                  ? "Backed by Supabase Auth. Passwords never touch our servers."
+                  ? "Backed by Supabase Auth. Passwords are verified by Supabase and never stored by VitaTwin."
                   : "Email sign-in activates once NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are set. The demo above always works."}
               </p>
             </form>
@@ -187,3 +187,5 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     </div>
   );
 }
+
+export const metadata = { title: "Sign in" };

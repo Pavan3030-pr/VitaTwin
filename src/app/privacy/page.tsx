@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { CONTACT, LegalPage } from "@/components/legal/legal-page";
 
-export const metadata: Metadata = { title: "Privacy policy · VitaTwin" };
+export const metadata: Metadata = { title: "Privacy policy" };
 
 export default function PrivacyPage() {
   return (

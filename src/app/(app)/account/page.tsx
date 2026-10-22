@@ -6,7 +6,7 @@ import { DeleteAccountForm } from "@/components/account/delete-account-form";
 import { getViewerSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Account · VitaTwin" };
+export const metadata: Metadata = { title: "Account" };
 
 export default async function AccountPage({
   searchParams,

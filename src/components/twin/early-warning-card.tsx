@@ -60,7 +60,7 @@ export function EarlyWarningCard({ ew }: { ew: EarlyWarning }) {
                 <span className="num font-semibold text-text-primary">
                   {s.current} <span className="font-normal text-text-muted">vs {s.baseline} {s.unit}</span>
                   <span className={`ml-2 text-xs ${s.direction === "worse" ? "text-danger-ink" : "text-text-muted"}`}>
-                    {s.zScore >= 0 ? "+" : ""}{s.zScore} SD
+                    {s.direction === "stable" ? "stable" : `${Math.abs(s.zScore)} SD ${s.direction}`}
                   </span>
                 </span>
               </li>

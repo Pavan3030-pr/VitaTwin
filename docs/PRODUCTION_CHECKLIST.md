@@ -38,3 +38,16 @@ before real traffic); the legal pages are sensible templates, not legal advice.
 | Supply chain | `.github/dependabot.yml`, `.github/workflows/codeql.yml` |
 | E2E in CI | `.github/workflows/e2e.yml` |
 | Post-deploy checks | `npm run smoke -- <url>`, `npm run lighthouse -- <url>` |
+
+## Round 3–6
+
+| Area | Where |
+|------|-------|
+| Meta description rendered in `<head>` | `next.config.ts` → `htmlLimitedBots` |
+| AA contrast for muted text | `tailwind.config.ts`, `globals.css` |
+| Saved snapshots + CSV/print export | `src/lib/snapshot-actions.ts`, `src/app/api/clinician/export/route.ts` |
+| Delete verified (no silent RLS no-op) | `src/lib/snapshot-actions.ts`, `supabase/migrations/0003_snapshot_delete_policy.sql` |
+| Local-time timestamps | `src/components/ui/local-time.tsx` |
+| Per-page browser titles | `title.template` in `src/app/layout.tsx` |
+| Accurate auth copy (no false "passwords never touch our servers") | `src/app/login/page.tsx` |
+| README screenshots | `npm run screenshots` → `docs/screenshots/` |

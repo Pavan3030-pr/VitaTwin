@@ -5,7 +5,7 @@ import { requestPasswordReset } from "@/lib/auth-actions";
 import { isSupabaseConfigured } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Reset your password · VitaTwin" };
+export const metadata: Metadata = { title: "Reset your password" };
 
 export default async function ForgotPasswordPage({
   searchParams,

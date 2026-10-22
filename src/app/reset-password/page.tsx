@@ -7,7 +7,7 @@ import { isSupabaseConfigured } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Choose a new password · VitaTwin" };
+export const metadata: Metadata = { title: "Choose a new password" };
 
 export default async function ResetPasswordPage({
   searchParams,

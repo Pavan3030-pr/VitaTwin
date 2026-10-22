@@ -16,7 +16,8 @@
     "backup": "bash scripts/backup-db.sh",
     "check:secrets": "bash scripts/check-secrets.sh",
     "smoke": "bash scripts/smoke-live.sh",
-    "lighthouse": "bash scripts/lighthouse.sh"
+    "lighthouse": "bash scripts/lighthouse.sh",
+    "screenshots": "node scripts/capture-screenshots.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

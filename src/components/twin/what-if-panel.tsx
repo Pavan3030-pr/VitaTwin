@@ -19,8 +19,8 @@ interface WhatIfPanelProps {
 
 const PRESETS: { id: string; label: string; apply: (base: ScenarioInput) => ScenarioInput }[] = [
   { id: "today", label: "Today", apply: (base) => base },
-  { id: "glucose", label: "Glucose under control", apply: (base) => ({ ...base, hba1c: 6.9 }) },
-  { id: "lipids", label: "LDL on target", apply: (base) => ({ ...base, ldl: 100 }) },
+  { id: "glucose", label: "Glucose under control", apply: (base) => ({ ...base, hba1c: Math.min(base.hba1c, 6.9) }) },
+  { id: "lipids", label: "LDL on target", apply: (base) => ({ ...base, ldl: Math.min(base.ldl, 100) }) },
   { id: "smoke", label: "Quit smoking", apply: (base) => ({ ...base, smoker: false }) },
   { id: "night", label: "A rough week of sleep", apply: (base) => ({ ...base, sleepHours: 4.5, restingHr: 92 }) },
 ];
@@ -153,7 +153,10 @@ export function WhatIfPanel({ baseline, initial }: WhatIfPanelProps) {
     <div className="grid gap-6 lg:grid-cols-[1.05fr_1fr] lg:gap-8">
       <div>
         <div className="flex flex-wrap gap-2" role="group" aria-label="Scenario presets">
-          {PRESETS.map((preset) => {
+          {PRESETS.filter(
+            // Hide presets that would change nothing for this patient (e.g. "Quit smoking" for a non-smoker).
+            (preset) => preset.id === "today" || JSON.stringify(preset.apply(baseline)) !== JSON.stringify(baseline),
+          ).map((preset) => {
             const active = JSON.stringify(preset.apply(baseline)) === JSON.stringify(scenario);
             return (
               <button

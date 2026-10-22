@@ -104,3 +104,5 @@ export default async function VitalsPage() {
     </div>
   );
 }
+
+export const metadata = { title: "Vitals" };

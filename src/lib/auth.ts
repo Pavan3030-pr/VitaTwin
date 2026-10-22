@@ -2,8 +2,8 @@
  * VitaTwin — auth helpers.
  *
  * Two modes:
- *  1. Demo mode (always available): a signed demo cookie grants access to a
- *     synthetic twin. This keeps the jury demo working offline.
+ *  1. Demo mode (always available): a plain, non-secret demo cookie grants access
+ *     to a synthetic twin (anyone can start the demo, so it needs no signature). This keeps the jury demo working offline.
  *  2. Supabase mode: when NEXT_PUBLIC_SUPABASE_URL and
  *     NEXT_PUBLIC_SUPABASE_ANON_KEY are configured, a real Supabase session
  *     (email/password) is validated server-side with `auth.getUser()`.

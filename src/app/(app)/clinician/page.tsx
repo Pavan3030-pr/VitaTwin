@@ -217,3 +217,5 @@ export default async function ClinicianPage() {
     </div>
   );
 }
+
+export const metadata = { title: "Clinician view" };

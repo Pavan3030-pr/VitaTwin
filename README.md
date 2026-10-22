@@ -64,7 +64,8 @@ Without that fusion, early deterioration that is still “within population norm
 | Auth (optional) | Supabase Auth + row-level security |
 | Interoperability | HL7 FHIR R4 (import/export), wearable CSV (Apple Health / Google Fit / generic) |
 | Live data | Open-Meteo (PM2.5, AQI, heat) — no API key |
-| Quality | Vitest unit tests, Playwright e2e, ESLint, GitHub Actions CI |
+| Quality | Vitest unit tests, Playwright e2e, ESLint, GitHub Actions CI, CodeQL, Dependabot |
+| Security & ops | Server-side authz, CSP and security headers, rate limiting (optional shared Redis), scrubbed error tracking, Vercel Web Analytics (cookieless), database backup script |
 | Deploy | Vercel — https://vita-twin-ten.vercel.app/ |
 | Licence | MIT |
 
@@ -86,6 +87,21 @@ VitaTwin uses **explainable, published risk equations and transparent baseline-d
 **Limitations (published in-app):** referral US cohort (not South-Asian incident events); wearable/EHR demo patients are synthetic; early-warning weights are transparent design choices tuned on controlled backtests, not a prospective clinical trial.
 
 Full model card: [`docs/MODEL_CARD.md`](./docs/MODEL_CARD.md)
+
+---
+
+## Screenshots
+
+All screenshots show **synthetic** patients. Regenerate them with `npm run screenshots -- https://vita-twin-ten.vercel.app`.
+
+| | |
+|---|---|
+| ![Landing page](docs/screenshots/01-landing.png)<br>**Landing** — what VitaTwin is and why it matters for India | ![Sign in](docs/screenshots/02-login.png)<br>**Sign in** — instant demo twin or email account |
+| ![Dashboard](docs/screenshots/03-dashboard.png)<br>**Dashboard** — live twin, early warning, explainable risk, what-if sliders | ![Insights](docs/screenshots/04-insights-explainability.png)<br>**Insights** — every score lists its drivers |
+| ![Vitals](docs/screenshots/05-vitals.png)<br>**Vitals** — wearable window charts | ![Timeline](docs/screenshots/06-timeline.png)<br>**Timeline** — reconstructed daily states and saved snapshots |
+| ![Clinician view](docs/screenshots/07-clinician.png)<br>**Clinician view** — urgency-sorted panel, CSV export, print to PDF | ![Import](docs/screenshots/08-import-fhir-wearable.png)<br>**Connect your data** — FHIR R4 and wearable CSV import |
+| ![Validation](docs/screenshots/09-validation.png)<br>**Validation** — AUC, quartiles, calibration, backtest | ![Account](docs/screenshots/10-account.png)<br>**Account** — password reset link and account deletion |
+| ![Privacy policy](docs/screenshots/11-privacy.png)<br>**Privacy policy** | ![Mobile dashboard](docs/screenshots/12-mobile-dashboard.png)<br>**Mobile** — responsive dashboard with scrollable tab bar |
 
 ---
 
@@ -135,6 +151,36 @@ Source code, documentation, and the live demo are **publicly accessible** withou
 
 ---
 
+## Accounts, privacy and production readiness
+
+| Area | What is implemented |
+|---|---|
+| Sign-in | Instant synthetic demo, or Supabase email/password with server-side session checks on every private route |
+| Account lifecycle | Email confirmation, forgot/reset password, resend confirmation, self-service **delete account** (database function, no service-role key) |
+| Saved snapshots | Signed-in users can save and delete compact twin snapshots (row-level security, 50 per user) |
+| Data export | Clinician panel **CSV** (formula-injection safe) and print-to-PDF layout |
+| Privacy and legal | `/privacy` and `/terms` pages, cookie-light design, Vercel Web Analytics without cookies |
+| Abuse protection | Rate limits on every API route and sensitive action; shared Redis limiter when `UPSTASH_*` is set |
+| Hardening | CSP, HSTS, frame and content-type headers, `security.txt`, `npm run check:secrets` scans the browser bundle, patched Next.js |
+| Observability | Server and browser errors captured, scrubbed of emails/tokens/numbers, optional webhook alerts |
+| Reliability | Loading skeletons, empty states, friendly error pages, `npm run backup`, `npm run smoke` post-deploy checks |
+| Accessibility and SEO | Skip link, landmarks, reduced-motion support, AA contrast, per-page titles, robots, sitemap, manifest |
+
+Checklist with file locations: [`docs/PRODUCTION_CHECKLIST.md`](./docs/PRODUCTION_CHECKLIST.md).
+
+**Known limits (stated plainly):** all patients are synthetic; the risk models are published equations validated on a US referral cohort, not a prospective Indian trial; email accounts store only a profile and compact snapshots; legal pages are templates that need professional review before real users.
+
+---
+
+## Quality and testing
+
+- **91 unit tests** (Vitest): risk models, twin engine, early warning, FHIR and wearable import, validation, rate limiting, snapshots, CSV export.
+- **21 end-to-end tests** (Playwright): main journey, authorization, mobile layout, onboarding, legal pages, account.
+- **CI** on every push: lint, typecheck, unit tests, production build, secret scan. CodeQL and Dependabot are enabled.
+- **Lighthouse (mobile, landing page, 21 Oct 2026, before the final contrast and meta-description fixes):** Performance 98 · Accessibility 96 · Best practices 100 · SEO 91. Re-run any time with `npm run lighthouse -- <url>`.
+
+---
+
 ## What is real vs simulated
 
 | Layer | Status |
@@ -166,14 +212,23 @@ Source code, documentation, and the live demo are **publicly accessible** withou
 
 ```bash
 npm ci
-npm run dev          # http://localhost:3000
-npm test
-npm run validate     # regenerates validation.json from UCI Cleveland
-npm run backtest-ew  # early-warning controlled backtest
-npm run build
+npm run dev                # http://localhost:3000
+npm run typecheck && npm run lint && npm test
+npm run test:e2e           # Playwright (run `npx playwright install chromium` once)
+npm run build && npm run check:secrets
+npm run validate           # regenerates validation.json from UCI Cleveland
+npm run backtest-ew        # early-warning controlled backtest
+
+# against a deployed site
+npm run smoke -- https://vita-twin-ten.vercel.app
+npm run lighthouse -- https://vita-twin-ten.vercel.app
+npm run screenshots -- https://vita-twin-ten.vercel.app
+
+# operations
+npm run backup             # compressed Supabase dump (needs SUPABASE_DB_URL in .env.local)
 ```
 
-Optional: set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` for email sign-in (see [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md)).
+Optional: copy `.env.example` to `.env.local` and set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` for email sign-in (see [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md)). The demo twin works with no configuration.
 
 ---
 
@@ -185,6 +240,7 @@ Optional: set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` for
 4. **Clinician view:** multi-patient urgency panel + lead time  
 5. **Import:** wearable CSV and/or FHIR R4 sample bundle  
 6. **Validation:** AUC, quartiles, calibration, early-warning backtest, limitations  
+7. **Email account (optional):** create an account, save a twin snapshot on Timeline, download the clinician CSV, then delete the account from Account  
 
 ---
 
@@ -196,6 +252,9 @@ Optional: set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` for
 | Architecture | [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) · [`docs/Architecture.pdf`](./docs/Architecture.pdf) |
 | Presentation | [`docs/VitaTwin_Presentation.pptx`](./docs/VitaTwin_Presentation.pptx) |
 | Security | [`docs/SECURITY.md`](./docs/SECURITY.md) |
+| Deployment runbook | [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md) |
+| Production checklist | [`docs/PRODUCTION_CHECKLIST.md`](./docs/PRODUCTION_CHECKLIST.md) |
+| Backups and restore | [`docs/BACKUPS.md`](./docs/BACKUPS.md) |
 | PRD | [`docs/PRD.md`](./docs/PRD.md) |
 | Demo script | [`docs/DEMO_SCRIPT.md`](./docs/DEMO_SCRIPT.md) |
 

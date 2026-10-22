@@ -122,7 +122,7 @@ export function WearableImportForm() {
                   <li key={s.metric} className="rounded-lg border border-border bg-bg-subtle/60 px-3 py-2 text-xs">
                     <span className="font-semibold text-text-primary">{s.label}</span>
                     <span className="text-text-muted">
-                      {" "}· now {s.current}{s.unit} vs baseline {s.baseline}{s.unit} ({s.zScore >= 0 ? "+" : ""}{s.zScore} SD)
+                      {" "}· now {s.current}{s.unit} vs baseline {s.baseline}{s.unit} ({s.direction === "stable" ? "stable" : `${Math.abs(s.zScore)} SD ${s.direction}`})
                     </span>
                   </li>
                 ))}

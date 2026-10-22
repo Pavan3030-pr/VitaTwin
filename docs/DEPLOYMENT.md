@@ -29,7 +29,11 @@ Set these in the host's dashboard (Production **and** Preview):
 |----------|----------|-------|
 | `NEXT_PUBLIC_SUPABASE_URL` | optional | Public project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | optional | Public anon key only |
-| `NEXT_PUBLIC_APP_URL` | optional | Public origin, used for absolute links |
+| `NEXT_PUBLIC_APP_URL` | recommended | Public origin (e.g. `https://vita-twin-ten.vercel.app`), used for metadata, sitemap and auth e-mail links |
+| `NEXT_PUBLIC_CONTACT_EMAIL` | optional | Contact address shown on the privacy page |
+| `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | optional | Shared rate limiting across serverless instances; without them an in-memory limiter is used |
+| `ERROR_WEBHOOK_URL` | optional | Server-only Slack/Discord/JSON webhook that receives scrubbed error reports |
+| `SUPABASE_DB_URL` | local only | Session-pooler connection string used by `npm run backup`; never set it on Vercel |
 
 - Omit both Supabase variables and the deployment still runs in offline demo
   mode; only the email form is disabled.
@@ -61,6 +65,22 @@ Set these in the host's dashboard (Production **and** Preview):
 4. Auth → Providers: Email enabled. If "Confirm email" is on, the first
    sign-up needs an inbox click before sign-in succeeds — worth knowing during
    a live demo, which is why the demo twin stays available.
+
+---
+
+### Supabase Auth URL settings (required for e-mail links)
+
+In **Authentication → URL Configuration**:
+
+- **Site URL:** `https://vita-twin-ten.vercel.app`
+- **Redirect URLs:** `https://vita-twin-ten.vercel.app/auth/callback` and
+  `http://localhost:3000/auth/callback`
+
+If the Site URL is left at its default (`http://localhost:3000`), confirmation and
+password-reset e-mails link to localhost and fail.
+
+Apply every file in `supabase/migrations/` in order (`0001` to `0003`), then run
+`supabase/tests/verify-rls.sql` and check the results it describes.
 
 ---
 
@@ -98,6 +118,19 @@ Run against the **live URL**, not localhost:
 7. Mobile Safari/Chrome at 375 px: no horizontal overflow.
 
 Record the URL and the date/time of the checks in `docs/MEMORY.md`.
+
+---
+
+### Automated checks
+
+```bash
+npm run smoke -- https://vita-twin-ten.vercel.app       # routes, auth gates, security headers
+npm run lighthouse -- https://vita-twin-ten.vercel.app  # performance, accessibility, SEO
+npm run check:secrets                                   # after `npm run build`
+```
+
+Also enable **Vercel → Analytics** once, and confirm
+`/api/health` reports `"rateLimiter":"shared-redis"` after adding the Upstash variables.
 
 ---
 

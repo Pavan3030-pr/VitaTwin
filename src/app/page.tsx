@@ -38,6 +38,7 @@ const TRUST = [
 
 export default function LandingPage() {
   const { twin, patient, vitals } = generateDemoBundle();
+  const pronoun = ({ Male: "his", Female: "her", Other: "their" } as const)[patient.demographics.gender];
   const cvd = twin.riskScores.find((score) => score.type === "cvd-10yr");
   const hba1c = patient.recentLabs.find((lab) => lab.name === "HbA1c")?.value ?? null;
   const drivers = [...(cvd?.factors ?? [])].sort((a, b) => b.weight - a.weight).slice(0, 6);
@@ -113,7 +114,7 @@ export default function LandingPage() {
               />
               <p className="mt-2 text-center text-xs text-text-muted">
                 {patient.demographics.firstName}, {patient.age}, a synthetic patient. The dashed
-                outline is her twin.
+                outline is {pronoun} twin.
               </p>
             </div>
           </div>

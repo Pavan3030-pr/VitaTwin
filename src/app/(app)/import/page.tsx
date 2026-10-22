@@ -55,3 +55,5 @@ export default function ImportPage() {
     </div>
   );
 }
+
+export const metadata = { title: "Connect your data" };

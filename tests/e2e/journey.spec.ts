@@ -261,6 +261,7 @@ test.describe("Onboarding, legal pages and account", () => {
     await dialog.getByRole("button", { name: "Next" }).click();
     await dialog.getByRole("button", { name: /Start exploring/i }).click();
     await expect(dialog).toBeHidden();
+    await expect.poll(async () => (await context.cookies()).some((c) => c.name === "vitatwin_onboarded")).toBe(true);
 
     await page.reload();
     await expect(page.getByRole("dialog")).toHaveCount(0);

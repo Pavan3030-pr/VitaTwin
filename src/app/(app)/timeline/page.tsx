@@ -2,6 +2,7 @@ import { Card, PageHeader, SectionTitle } from "@/components/ui/card";
 import { History, Save, Trash2 } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
 import { FormMessage } from "@/components/auth/auth-card";
+import { LocalTime } from "@/components/ui/local-time";
 import { RiskBadge } from "@/components/ui/risk-badge";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { getViewerSession } from "@/lib/auth";
@@ -132,7 +133,7 @@ export default async function TimelinePage({
                     <Card className="flex flex-wrap items-center justify-between gap-3 py-3">
                       <div className="min-w-0">
                         <p className="text-sm font-semibold text-text-primary">
-                          {new Date(snap.capturedAt).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}
+                          <LocalTime iso={snap.capturedAt} />
                           <span className="ml-2 text-xs font-normal text-text-muted">
                             {snap.payload.patientName} · early warning {snap.payload.earlyWarning.level}
                           </span>

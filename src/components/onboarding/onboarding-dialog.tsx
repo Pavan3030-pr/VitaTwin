@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Activity, Sparkles, ShieldCheck, type LucideIcon } from "lucide-react";
-import { completeOnboarding } from "@/lib/onboarding-actions";
+import { ONBOARDING_COOKIE } from "@/lib/onboarding";
 
 const STEPS: Array<{ icon: LucideIcon; title: string; body: string }> = [
   {
@@ -30,7 +30,9 @@ export function OnboardingDialog() {
 
   const finish = () => {
     setOpen(false);
-    void completeOnboarding();
+    // Written synchronously so an immediate reload cannot show the tour again.
+    const secure = window.location.protocol === "https:" ? "; Secure" : "";
+    document.cookie = `${ONBOARDING_COOKIE}=1; Path=/; Max-Age=31536000; SameSite=Lax${secure}`;
   };
 
   useEffect(() => {

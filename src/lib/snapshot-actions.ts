@@ -7,6 +7,7 @@ import { getActiveBundle } from "./active";
 import { createSupabaseServerClient } from "./supabase/server";
 import { checkRateLimitShared } from "./rate-limit-shared";
 import { getClientKey } from "./client-key";
+import { reportError } from "./monitoring";
 import { buildSnapshotPayload, MAX_SNAPSHOTS_PER_USER } from "@/services/snapshot";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -56,8 +57,14 @@ export async function deleteSnapshot(formData: FormData): Promise<void> {
   if (!UUID.test(id)) back("error", "That snapshot could not be found.");
 
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.from("twin_snapshots").delete().eq("id", id);
+  // .select() returns the rows that were really deleted. RLS can refuse a delete without
+  // raising an error, so an empty result must not be reported as success.
+  const { data, error } = await supabase.from("twin_snapshots").delete().eq("id", id).select("id");
   if (error) back("error", "We could not delete that snapshot. Please try again.");
+  if (!data || data.length === 0) {
+    reportError({ scope: "snapshot-delete-removed-nothing" });
+    back("error", "That snapshot was not deleted. It may already be gone, or the database is refusing deletes.");
+  }
 
   revalidatePath("/timeline");
   back("notice", "Snapshot deleted.");

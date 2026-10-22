@@ -14,3 +14,8 @@ having count(p.policyname) = 0;
 
 -- 3) The anonymous role must not be able to run the delete function: expect `false`.
 select has_function_privilege('anon', 'public.delete_my_account()', 'execute') as anon_can_delete;
+
+-- 4) Users must be able to delete their own snapshots: expect ONE row (delete / authenticated).
+select policyname, cmd, roles
+from pg_policies
+where schemaname = 'public' and tablename = 'twin_snapshots' and cmd = 'DELETE';

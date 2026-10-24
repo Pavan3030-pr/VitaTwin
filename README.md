@@ -108,7 +108,7 @@ All screenshots show **synthetic** patients. Regenerate them with `npm run scree
 ## Demo video
 
 **Unlisted YouTube demo (15–20 min):**  
-*[Paste your unlisted YouTube link here after upload]*
+*https://youtu.be/DBrcYcxCbUo*
 
 Suggested walkthrough: Dashboard (Rajesh) → early warning → Priya + live AQI → what-if → clinician panel → wearable/FHIR import → validation page.
 

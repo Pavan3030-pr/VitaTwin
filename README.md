@@ -174,7 +174,7 @@ Checklist with file locations: [`docs/PRODUCTION_CHECKLIST.md`](./docs/PRODUCTIO
 
 ## Quality and testing
 
-- **91 unit tests** (Vitest): risk models, twin engine, early warning, FHIR and wearable import, validation, rate limiting, snapshots, CSV export.
+- **98 unit tests** (Vitest): risk models, twin engine, early warning, FHIR and wearable import, validation, rate limiting, snapshot and delete actions, CSV export.
 - **21 end-to-end tests** (Playwright): main journey, authorization, mobile layout, onboarding, legal pages, account.
 - **CI** on every push: lint, typecheck, unit tests, production build, secret scan. CodeQL and Dependabot are enabled.
 - **Lighthouse (mobile, landing page, 21 Oct 2026, before the final contrast and meta-description fixes):** Performance 98 · Accessibility 96 · Best practices 100 · SEO 91. Re-run any time with `npm run lighthouse -- <url>`.
@@ -187,7 +187,7 @@ Checklist with file locations: [`docs/PRODUCTION_CHECKLIST.md`](./docs/PRODUCTIO
 |---|---|
 | Risk equations (Framingham, IDRS, UKPDS-35, SA ×1.4) | **Real, published** |
 | Air quality & heat for patient city | **Real, live** (Open-Meteo) |
-| Model check on 303 real patients | **Real dataset** (`npm run validate`) |
+| Offline model check on the public UCI Cleveland dataset (303 de-identified records) | **Public benchmark** (`npm run validate`). Used only to sanity-check the equations; no real patient data enters the app |
 | FHIR R4 import/export | **Real interoperability** |
 | Demo patients & default wearable streams | **Synthetic** (labelled in UI) |
 | Optional user wearable CSV | **User-supplied**; processed in memory, not stored |
@@ -254,6 +254,7 @@ Optional: copy `.env.example` to `.env.local` and set `NEXT_PUBLIC_SUPABASE_URL`
 | Security | [`docs/SECURITY.md`](./docs/SECURITY.md) |
 | Deployment runbook | [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md) |
 | Production checklist | [`docs/PRODUCTION_CHECKLIST.md`](./docs/PRODUCTION_CHECKLIST.md) |
+| Submission checklist | [`docs/SUBMISSION_CHECKLIST.md`](./docs/SUBMISSION_CHECKLIST.md) |
 | Backups and restore | [`docs/BACKUPS.md`](./docs/BACKUPS.md) |
 | PRD | [`docs/PRD.md`](./docs/PRD.md) |
 | Demo script | [`docs/DEMO_SCRIPT.md`](./docs/DEMO_SCRIPT.md) |

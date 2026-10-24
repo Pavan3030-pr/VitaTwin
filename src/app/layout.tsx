@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     title: "VitaTwin — Your Living Digital Health Twin",
     description: "Explainable cardiometabolic risk from wearable and health-record data. Synthetic data only.",
   },
-  twitter: { card: "summary", title: "VitaTwin — Your Living Digital Health Twin" },
+  twitter: { card: "summary_large_image", title: "VitaTwin — Your Living Digital Health Twin" },
   title: {
     default: "VitaTwin — Your Living Digital Health Twin",
     template: "%s · VitaTwin",

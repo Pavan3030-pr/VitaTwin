@@ -74,6 +74,40 @@ recommendation panel below.
 | Question | Answer |
 |----------|--------|
 | Is the data real? | No — fully synthetic and labelled everywhere. Real device APIs are deliberate v2 scope. |
-| Where is PHI protected? | Supabase RLS scoped to `auth.uid()`, httpOnly cookies, anon key only in the browser. |
+| Where is user data protected? | Supabase RLS scoped to `auth.uid()`, server-side session checks on every private route, anon key only in the browser, no service-role key anywhere. |
 | Why India-specific? | Young-onset diabetes/hypertension burden, low-cost wearable reality, clinician-facing framing. |
-| Are the models validated? | No — transparent heuristics with published-factor structure, clearly versioned (`vita-twin-*-1.0`). |
+| Are the models validated? | Partly, and we say so. The equations are published; the CVD score is sanity-checked offline on the public UCI Cleveland dataset (see `/validation`); the early-warning backtest uses synthetic data; there is no prospective study. |
+| Does any real patient data enter the app? | No. Cleveland is a public, de-identified benchmark used only offline by `npm run validate`. Every patient in the app is generated. |
+| What if the live air-quality feed is down? | The app labels it unavailable and keeps working; the twin never depends on the network. |
+
+---
+
+# Extended walkthrough (10–20 minute recording)
+
+Use this when the submission asks for a longer demo video. Each block is one
+screen; say the quoted line, show the thing, move on.
+
+| Time | Screen | Show | Say |
+|------|--------|------|-----|
+| 0:00 | `/` landing | Synthetic-data notice, India context, the twin figure | The problem: diabetes and hypertension in India, and care that reacts instead of predicts |
+| 1:30 | `/login` → demo | Click **Continue with demo twin** | Instant synthetic patient; a real account is also available |
+| 2:30 | `/dashboard` | Six personas, risk rings, "Top drivers" under each score | Every score lists its drivers; nothing is a black box |
+| 4:00 | Early warning card | "x SD worse" rows and lead time | Compares today to the person's own baseline, not a population average |
+| 5:00 | What-if panel | Presets and sliders (e.g. Glucose under control) | Risk is recomputed live so a patient sees what a change would do |
+| 6:30 | Environment card | Live air quality and heat from Open-Meteo | The only real data is public weather; it is labelled and optional |
+| 7:30 | `/insights`, `/vitals` | Alert explanation, wearable charts | Plain-language reasons, then the signals behind them |
+| 9:00 | `/import` | FHIR sample bundle, wearable CSV sample | Standards-based in (FHIR R4) and out; files are analysed and discarded |
+| 11:00 | `/clinician` | Urgency-sorted panel, **Download CSV**, **Print / save as PDF** | Same twin, framed for a doctor |
+| 12:30 | `/validation` | AUC and calibration on the public Cleveland benchmark, backtest, limitations | Offline sanity check on public data; limits are stated, not hidden |
+| 14:00 | Real account | Sign up with a throwaway email, open the confirmation mail, sign in | Row-level security isolates each user |
+| 15:30 | `/timeline` | **Save today's snapshot**, then delete it | Users keep a private history of derived scores |
+| 16:30 | `/account` | Reset-password link, then **Delete my account** | Self-service deletion; no service-role key |
+| 17:30 | Engineering | Terminal: `npm run smoke`, green CI badge, Lighthouse scores | Tested, monitored, and checked after every deploy |
+| 19:00 | Close | Landing page | Synthetic data only, explainable, privacy-first |
+
+**Recording tips**
+
+- Browser at 1440 px wide, light theme, notifications off, a clean profile with no other tabs visible.
+- Run `npm run smoke -- https://vita-twin-ten.vercel.app` just before recording; fix anything red first.
+- Use a throwaway email for the account section, and delete the account on camera so the project stays clean.
+- Upload as **Unlisted** on YouTube, then paste the link into `README.md` under *Demo video*.

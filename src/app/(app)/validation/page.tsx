@@ -24,8 +24,8 @@ export default function ValidationPage() {
   return (
     <div className="space-y-7">
       <PageHeader
-        title="Model validation on real patients"
-        description="Cardiovascular score on 303 real patients, plus a controlled backtest of the personal-baseline early-warning detector. Limitations are published alongside the numbers."
+        title="Model validation on a public benchmark"
+        description="An offline check of the cardiovascular score on the public UCI Cleveland dataset (303 de-identified records), plus a controlled backtest of the early-warning detector on synthetic data. No real patient data enters VitaTwin. Limitations are published alongside the numbers."
       />
 
       <section>

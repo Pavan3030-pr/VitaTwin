@@ -55,7 +55,7 @@ export default async function ClinicianPage() {
       </div>
 
       <section>
-        <SectionTitle hint="Sorted by urgency">Patient panel</SectionTitle>
+        <SectionTitle hint="Sorted by risk band, early warning and open alerts">Patient panel</SectionTitle>
         <Card className="p-0">
           <div className="overflow-x-auto">
             <form action={selectPatient}>

@@ -177,7 +177,7 @@ Checklist with file locations: [`docs/PRODUCTION_CHECKLIST.md`](./docs/PRODUCTIO
 - **98 unit tests** (Vitest): risk models, twin engine, early warning, FHIR and wearable import, validation, rate limiting, snapshot and delete actions, CSV export.
 - **21 end-to-end tests** (Playwright): main journey, authorization, mobile layout, onboarding, legal pages, account.
 - **CI** on every push: lint, typecheck, unit tests, production build, secret scan. CodeQL and Dependabot are enabled.
-- **Lighthouse (mobile, landing page, 21 Oct 2026, before the final contrast and meta-description fixes):** Performance 98 · Accessibility 96 · Best practices 100 · SEO 91. Re-run any time with `npm run lighthouse -- <url>`.
+- **Lighthouse (mobile, landing page, Oct 2026):** Performance 99 · Accessibility 100 · Best practices 100 · SEO 100. Re-run any time with `npm run lighthouse -- <url>`.
 
 ---
 

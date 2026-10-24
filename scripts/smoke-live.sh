@@ -18,7 +18,12 @@ for p in /dashboard /vitals /insights /timeline /profile /clinician /import /val
 check /api/clinician/export 401
 check /definitely-not-a-page 404
 for h in content-security-policy x-frame-options x-content-type-options referrer-policy permissions-policy; do header "$h"; done
-if curl -s --max-time 20 "$BASE/api/health" | grep -q '"status":"ok"'; then echo "✓ health payload"; else echo "✗ health payload"; fail=1; fi
+health=$(curl -s --max-time 20 "$BASE/api/health")
+if echo "$health" | grep -q '"status":"ok"'; then echo "✓ health payload"; else echo "✗ health payload"; fail=1; fi
+if echo "$health" | grep -q '"supabaseConfigured":true'; then
+  if echo "$health" | grep -q '"auth":"ok"'; then echo "✓ auth service reachable"; else echo "✗ auth service not reachable"; fail=1; fi
+fi
+if curl -sI --max-time 20 "$BASE/" | grep -qi "^cross-origin-opener-policy:"; then echo "✓ header cross-origin-opener-policy"; else echo "✗ missing header cross-origin-opener-policy"; fail=1; fi
 
 [ $fail -eq 0 ] && echo "ALL CHECKS PASSED" || echo "SOME CHECKS FAILED"
 exit $fail

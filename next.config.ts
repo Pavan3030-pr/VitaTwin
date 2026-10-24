@@ -11,6 +11,8 @@ const securityHeaders = [
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" },
+  // No popups or cross-window flows are used, so isolate the browsing context (blocks XS-Leaks).
+  { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
   {
     key: "Content-Security-Policy",
     value: [

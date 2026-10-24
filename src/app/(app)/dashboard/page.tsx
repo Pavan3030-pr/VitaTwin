@@ -5,6 +5,7 @@ import { RiskBadge, SeverityBadge } from "@/components/ui/risk-badge";
 import { RiskRing } from "@/components/twin/risk-ring";
 import { TwinFigure } from "@/components/twin/twin-figure";
 import { WhatIfPanel } from "@/components/twin/what-if-panel";
+import { LeversCard } from "@/components/twin/levers-card";
 import { LiveVitals } from "@/components/twin/live-vitals";
 import { EarlyWarningCard } from "@/components/twin/early-warning-card";
 import { EnvironmentCard } from "@/components/twin/environment-card";
@@ -12,6 +13,7 @@ import { ProvenanceCard } from "@/components/twin/provenance-card";
 import { PatientSwitcher } from "@/components/twin/patient-switcher";
 import { getActiveBundle } from "@/lib/active";
 import { baselineScenario, simulateScenario } from "@/services/scenario";
+import { rankLevers } from "@/services/levers";
 
 export const dynamic = "force-dynamic";
 
@@ -48,6 +50,7 @@ export default async function DashboardPage() {
   };
   const whatIfBaseline = baselineScenario(scenarioBaseline);
   const whatIfInitial = simulateScenario(scenarioBaseline, whatIfBaseline);
+  const levers = rankLevers(scenarioBaseline);
 
   const chips = [
     `${vitals.bloodPressureSystolic}/${vitals.bloodPressureDiastolic} mmHg`,
@@ -211,6 +214,7 @@ export default async function DashboardPage() {
         </div>
         <Card className="p-5 sm:p-6">
           <WhatIfPanel baseline={whatIfBaseline} initial={whatIfInitial} />
+          <LeversCard levers={levers} />
         </Card>
       </section>
 

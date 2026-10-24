@@ -174,7 +174,7 @@ Checklist with file locations: [`docs/PRODUCTION_CHECKLIST.md`](./docs/PRODUCTIO
 
 ## Quality and testing
 
-- **98 unit tests** (Vitest): risk models, twin engine, early warning, FHIR and wearable import, validation, rate limiting, snapshot and delete actions, CSV export.
+- **127 unit tests** (Vitest) with a coverage gate (86% statements, 96% functions on `src/lib` and `src/services`): risk models, twin engine, early warning, what-if levers, FHIR and wearable import, sign-in, sign-up, password reset, e-mail callback, account deletion, snapshots, CSV export, health probe.
 - **21 end-to-end tests** (Playwright): main journey, authorization, mobile layout, onboarding, legal pages, account.
 - **CI** on every push: lint, typecheck, unit tests, production build, secret scan. CodeQL and Dependabot are enabled.
 - **Lighthouse (mobile, landing page, Oct 2026):** Performance 99 · Accessibility 100 · Best practices 100 · SEO 100. Re-run any time with `npm run lighthouse -- <url>`.
@@ -213,7 +213,7 @@ Checklist with file locations: [`docs/PRODUCTION_CHECKLIST.md`](./docs/PRODUCTIO
 ```bash
 npm ci
 npm run dev                # http://localhost:3000
-npm run typecheck && npm run lint && npm test
+npm run typecheck && npm run lint && npm run test:coverage
 npm run test:e2e           # Playwright (run `npx playwright install chromium` once)
 npm run build && npm run check:secrets
 npm run validate           # regenerates validation.json from UCI Cleveland
@@ -255,6 +255,9 @@ Optional: copy `.env.example` to `.env.local` and set `NEXT_PUBLIC_SUPABASE_URL`
 | Deployment runbook | [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md) |
 | Production checklist | [`docs/PRODUCTION_CHECKLIST.md`](./docs/PRODUCTION_CHECKLIST.md) |
 | Submission checklist | [`docs/SUBMISSION_CHECKLIST.md`](./docs/SUBMISSION_CHECKLIST.md) |
+| HTTP API reference | [`docs/API.md`](./docs/API.md) |
+| Troubleshooting | [`docs/TROUBLESHOOTING.md`](./docs/TROUBLESHOOTING.md) |
+| Changelog and contributing | [`CHANGELOG.md`](./CHANGELOG.md) · [`CONTRIBUTING.md`](./CONTRIBUTING.md) |
 | Backups and restore | [`docs/BACKUPS.md`](./docs/BACKUPS.md) |
 | PRD | [`docs/PRD.md`](./docs/PRD.md) |
 | Demo script | [`docs/DEMO_SCRIPT.md`](./docs/DEMO_SCRIPT.md) |

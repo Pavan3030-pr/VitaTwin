@@ -51,3 +51,14 @@ before real traffic); the legal pages are sensible templates, not legal advice.
 | Per-page browser titles | `title.template` in `src/app/layout.tsx` |
 | Accurate auth copy (no false "passwords never touch our servers") | `src/app/login/page.tsx` |
 | README screenshots | `npm run screenshots` → `docs/screenshots/` |
+
+## Round 7–8
+
+| Area | Where |
+|------|-------|
+| Biggest-levers ranking | `src/services/levers.ts`, `src/components/twin/levers-card.tsx` |
+| Coverage gate in CI | `vitest.config.ts`, `.github/workflows/ci.yml` |
+| Auth, account and callback tests | `tests/unit/auth-actions.test.ts`, `account-actions.test.ts`, `auth-callback.test.ts` |
+| Health probe for Supabase Auth | `src/lib/health.ts`, `/api/health` |
+| COOP header, production audit in CI | `next.config.ts`, `ci.yml` |
+| API reference, troubleshooting, changelog, contributing | `docs/API.md`, `docs/TROUBLESHOOTING.md`, `CHANGELOG.md`, `CONTRIBUTING.md` |

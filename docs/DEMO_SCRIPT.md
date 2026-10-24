@@ -93,7 +93,7 @@ screen; say the quoted line, show the thing, move on.
 | 1:30 | `/login` → demo | Click **Continue with demo twin** | Instant synthetic patient; a real account is also available |
 | 2:30 | `/dashboard` | Six personas, risk rings, "Top drivers" under each score | Every score lists its drivers; nothing is a black box |
 | 4:00 | Early warning card | "x SD worse" rows and lead time | Compares today to the person's own baseline, not a population average |
-| 5:00 | What-if panel | Presets and sliders (e.g. Glucose under control) | Risk is recomputed live so a patient sees what a change would do |
+| 5:00 | What-if panel | Presets and sliders (e.g. Glucose under control), then the **Biggest levers** list | Risk is recomputed live, and the twin ranks which single change would help this person most |
 | 6:30 | Environment card | Live air quality and heat from Open-Meteo | The only real data is public weather; it is labelled and optional |
 | 7:30 | `/insights`, `/vitals` | Alert explanation, wearable charts | Plain-language reasons, then the signals behind them |
 | 9:00 | `/import` | FHIR sample bundle, wearable CSV sample | Standards-based in (FHIR R4) and out; files are analysed and discarded |

@@ -15,6 +15,9 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
-      - run: npm test
+      - run: npm run test:coverage
       - run: npm run build
       - run: npm run check:secrets
+      # Production dependencies: fail on critical advisories (a known high one in Next's bundled
+      # PostCSS has no non-breaking fix yet and is tracked by Dependabot).
+      - run: npm audit --omit=dev --audit-level=critical

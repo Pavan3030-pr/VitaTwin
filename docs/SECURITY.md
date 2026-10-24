@@ -43,3 +43,13 @@
 - Auth rate limit (8 attempts / 10 min / client, in-memory) and email/password length validation.
 - Security headers (CSP, HSTS, X-Frame-Options DENY, nosniff, Referrer-Policy, Permissions-Policy) in `next.config.ts`.
 - What-if action needs a session and clamps every input; error reports are scrubbed of emails, tokens and long numbers.
+
+## Accepted risks and mitigations (2026-10-24)
+
+| Risk | Why it is accepted | Mitigation |
+|---|---|---|
+| Demo cookie is a plain flag, not signed | Anyone can start the demo by clicking the button; it only unlocks synthetic data | Never reused for e-mail accounts, which use Supabase sessions checked on the server |
+| CSP allows inline scripts | Next.js App Router injects inline bootstrap scripts; a nonce policy needs fully dynamic rendering | All other CSP directives are strict (`default-src 'self'`, no remote scripts), no user HTML is ever rendered |
+| In-memory rate limiter when Redis is not configured | Keeps the app working with zero setup | `UPSTASH_*` enables a shared limiter; `/api/health` shows which one is active; Redis outages fall back, never fail closed |
+| PostCSS advisory inside Next.js's bundled copy | Fix requires a breaking Next.js major | Build-time only, no untrusted CSS is processed; CI blocks critical advisories; Dependabot tracks the upgrade |
+| Public benchmark data used offline | Gives a sanity check of the equations | No real patient data enters the app; stated on the validation page and in the README |
